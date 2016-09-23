@@ -1,0 +1,15 @@
+{
+  "name": "init-app",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "iamchenxin",
+  "license": "MIT",
+  "dependencies": {
+    "minimist": "^1.2.0",
+    "semver": "^5.3.0"
+  }
+}

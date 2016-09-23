@@ -1,0 +1,19 @@
+{
+  "name": "config-relay-react",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "iamchenxin",
+  "license": "MIT",
+  "dependencies": {
+    "babel-eslint": "^6.1.2",
+    "eslint": "^3.0.0",
+    "eslint-plugin-babel": "^3.3.0",
+    "eslint-plugin-flowtype": "^2.15.0",
+    "eslint-plugin-react": "^5.2.2",
+    "config-react": "^0.0.1"
+  }
+}
