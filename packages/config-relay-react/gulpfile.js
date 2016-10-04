@@ -1,27 +1,27 @@
+// @flow
 /*eslint-env node */
-var gulp=require('gulp');
-var babel=require('gulp-babel');
-var sourcemaps=require('gulp-sourcemaps');
-var rename = require('gulp-rename');
-var path=require('path');
+var gulp = require('gulp');
+const gScript = require('./scripts/gulp.scripts.js');
 //var gutil =require('gulp-util');
-const fbjsConfigure = require('babel-preset-fbjs/configure');
+const utils = require('./scripts/utils.js');
+const web = require('./scripts/webpack.scripts.js');
+const ports = require('./config/config.js').ports;
 
 
 gulp.task('lib', function() {
-  return stdGulpTrans('src', 'lib');
+  return gScript.stdGulpTrans('src', 'lib');
 });
 
 gulp.task('flow', function() {
-  return flowType('src', 'lib');
+  return gScript.withFlowJSType('src', 'lib');
 });
 
 gulp.task('build', ['lib', 'flow'], function() {
-  return stdGulpTrans('src/common', 'dst/common');
+  return gScript.stdGulpTrans('src/common', 'dst/common');
 });
 
 gulp.task('clean', function() {
-  return rmdir([
+  return utils.rmdir([
     'lib',
     'index.js',
     'index.js.flow',
@@ -29,55 +29,6 @@ gulp.task('clean', function() {
   ] );
 });
 
-// ........functions .......
-function flowType(src, dst) {
-  var srcPath = [src+'/**/*.js',
-    '!'+src+'/**/__tests__/**', '!'+src+'/**/__mocks__/**'];
-  return gulp
-    .src(srcPath)
-    .pipe(rename({extname: '.js.flow'}))
-    .pipe(gulp.dest(dst));
-}
-
-var fs = require('fs');
-function rmdir(pathNames) {
-  pathNames.forEach(function(pathName) {
-    if (!fs.existsSync(pathName)) { return; }
-    const stat = fs.statSync(pathName);
-    if ( stat.isFile()) {
-      rmfile(pathName);
-    }
-    if (stat.isDirectory()) {
-      const subPaths = fs.readdirSync(pathName)
-        .map(function(subPathName) {
-          return path.resolve(pathName, subPathName);
-        });
-      rmdir(subPaths);
-      fs.rmdirSync(pathName);
-    }
-  });
-  function rmfile(name) {
-    fs.unlinkSync(name);
-  }
-}
-
-function stdGulpTrans(src, dst) {
-  var sourceRoot = path.join(__dirname, src);
-  var srcPath = [src+'/**/*.js',
-    '!'+src+'/**/__tests__/**', '!'+src+'/**/__mocks__/**'];
-  return gulp
-    .src(srcPath)
-    .pipe(sourcemaps.init())
-    .pipe(babel({
-      presets: [
-        fbjsConfigure({
-          autoImport: false,
-          target: 'js',
-        }),
-      ],
-    }))
-    .pipe(sourcemaps.write('.', {
-      includeContent: true, sourceRoot: sourceRoot, debug:true
-    }))
-    .pipe(gulp.dest(dst));
-}
+gulp.task('dev-server', () => {
+  return web.devServer(ports.web);
+});
