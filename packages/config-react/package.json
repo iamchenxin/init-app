@@ -33,6 +33,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.6.0",
     "jest": "^15.1.1",
+    "react-hot-loader": "^3.0.0-beta.5",
     "webpack": "^2.1.0-beta.25",
     "webpack-dev-server": "^2.1.0-beta.5"
   }
