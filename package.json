@@ -9,7 +9,8 @@
     "mts": "npm run bnode -- mts.js",
     "p_lo": "npm install --save /home/iamchenxin/project/fork/node-pg-pool /home/iamchenxin/project/fork/node-postgres",
     "rsync": "rsync -avz .babelrc .eslintrc.js gulpfile.js /home/iamchenxin/project/config/",
-    "schema": "NODE_ENV=dev babel-node -- src/scripts/updateSchema.js"
+    "schema": "NODE_ENV=dev babel-node -- src/scripts/updateSchema.js",
+    "t1": "node ./scripts/t1.js"
   },
   "devDependencies": {
     "babel-eslint": "^6.1.2",
