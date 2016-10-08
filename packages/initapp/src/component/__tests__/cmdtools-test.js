@@ -13,6 +13,7 @@ describe('cmdtools.js', () => {
     nameMustbe('package', 'npm');
     nameMustbe('package1', 'npm');
     nameMustbe('_package', 'npm');
+    nameMustbe('relay-react', 'npm'); // *-*
     nameMustbe('1package', 'unknown'); // do not allow start with number
     nameMustbe('package@0.0.1', 'npm');
     nameMustbe('package@beta0.0.1', 'npm');

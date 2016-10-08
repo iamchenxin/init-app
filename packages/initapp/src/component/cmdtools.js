@@ -55,12 +55,12 @@ function installPackage(packageName: string): Promise<string> {
     case 'local':
       return installFromLocal(packageName);
   }
-  return Promise.reject('not a valid package name|path: ${packageName}');
+  return Promise.reject(`not a valid package name|path: ${packageName}`);
 }
 
 type PackageLocation = 'npm'|'local'|'unknown';
 function testPackageName(packageName: string): PackageLocation {
-  const npm_exp = /^[a-zA-z_]\w+@{0,1}[\w\.]*$/;
+  const npm_exp = /^[a-zA-z_][\w\-]+@{0,1}[\w\.]*$/;
   const local_exp = /^[\.\/~].+/;
   if ( packageName.match(npm_exp) ) {
     return 'npm';
@@ -91,7 +91,8 @@ function installFromLocal(packagePath: string): Promise<string> {
   return new Promise(function(resolve, reject) {
     const fullPath = path.resolve(packagePath);
     pathMustbeExist(path.resolve(fullPath, 'package.json'),
-      `${fullPath} is not a valid npm package. Must have a package.json in it`);
+      `"${fullPath}" is an invalid local npm package.` +
+      'There is no package.json in it');
     resolve(fullPath);
   });
 }
