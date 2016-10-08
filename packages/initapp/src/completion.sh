@@ -1,9 +1,9 @@
-###-begin-cmts.js-completions-###
+###-begin-iapp-completions-###
 #
 # yargs command completion script
 #
-# Installation: ./cmts.js completion >> ~/.bashrc
-#    or ./cmts.js completion >> ~/.bash_profile on OSX.
+# Installation: iapp completion >> ~/.bashrc
+#    or iapp completion >> ~/.bash_profile on OSX.
 #
 _yargs_completions()
 {
@@ -13,7 +13,7 @@ _yargs_completions()
     args=("${COMP_WORDS[@]}")
 
     # ask yargs to generate completions.
-    type_list=$(./cmts.js --get-yargs-completions "${args[@]}")
+    type_list=$(iapp --get-yargs-completions "${args[@]}")
 
     COMPREPLY=( $(compgen -W "${type_list}" -- ${cur_word}) )
 
@@ -24,6 +24,5 @@ _yargs_completions()
 
     return 0
 }
-echo 'add auto completion for current shell, should exec like `source completion.sh`'
 complete -F _yargs_completions iapp
-###-end-cmts.js-completions-###
+###-end-iapp-completions-###
