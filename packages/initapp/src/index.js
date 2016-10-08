@@ -6,7 +6,7 @@ import 'babel-polyfill';
 const yargs = require('yargs');
 import {
   initApp,
-} from './copy.js';
+} from './init.js';
 
 function commandList() {
   const init = {

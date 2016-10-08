@@ -3,7 +3,7 @@ import { print } from '../scripts/log.js';
 import {
   cpDir,
   initApp,
-} from './copy.js';
+} from './init.js';
 
 
 
