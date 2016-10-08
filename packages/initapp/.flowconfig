@@ -1,5 +1,6 @@
 [ignore]
 .*/fbjs/.*
+.*/config-relay-react/.*
 [include]
 
 [libs]

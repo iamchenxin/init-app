@@ -4,6 +4,7 @@ const path = require('path');
 const proc = require('child_process');
 const semver = require('semver');
 const paths = require('../config/config.js').paths;
+import { print } from '../scripts/log.js';
 
 type CopyConfig = {
   ignore?: Array<string>,
@@ -36,44 +37,38 @@ function mapFromKeys(keys?: Array<string>): {[key: string]: number} {
   return ob;
 }
 
-async function exec(packageName: string, dst: string, config: CopyConfig) {
+async function initApp(packageName: string, dst: string, config: CopyConfig) {
   const srcPath = await installPackage(packageName);
-  cpDir(srcPath, dst, config);
+  return cpDir(srcPath, dst, config);
 }
 
 function cpDir(srcPath: string, dst: string, config: CopyConfig) {
   mustbe(fs.existsSync(srcPath) && fs.statSync(srcPath).isDirectory(), true);
-  // let ignoreNames = [];
-  // if ( config.ignore ) {
-  //   ignoreNames = config.ignore.filter( name =>
-  //     name && (name[0] == '.' || name[0] == '/') );
-  // }
   const dstPath = path.normalize(dst);
   fs.mkdirsSync(dstPath);
-  const ignoreNameMap = mapFromKeys(config.ignore);
-  console.log('to copy ...');
-  console.log(srcPath, dstPath);
-  _cpDir(srcPath, dstPath);
+  const ignoreMap = mapFromKeys(config.ignore);
+  return _cpDir(srcPath, dstPath);
 
 // ------------- function
   function _cpDir(srcDir: string, dstDir: string) {
     const dirs = fs.readdirSync(srcDir);
-    console.dir(dirs);
-    dirs.filter( fileName => ignoreNameMap.hasOwnProperty(fileName) == false)
-    .map( fileName => {
+    return dirs.map( fileName => {
       const subSrcPath = path.resolve(srcDir, fileName);
-      const srcRelative = path.relative(srcDir, subSrcPath);
-      if ( ignoreNameMap.hasOwnProperty(srcRelative) ) {
-        return;
-      }
       const subDstPath = path.resolve(dstDir, fileName);
+      const srcRelative = path.relative(srcDir, subSrcPath);
       const srcStat = fs.statSync(subSrcPath);
-      if ( srcStat.isFile() ) {
-        console.log(subDstPath);
+
+      let result = `!unknown ERROR! --- ${fileName}`;
+      if ( ignoreMap.hasOwnProperty(srcRelative) ||
+        ignoreMap.hasOwnProperty(fileName)  ) {
+        result = `!ignore ---  ${fileName}`;
+      } else if ( srcStat.isFile() ) {
         fs.copySync(subSrcPath, subDstPath);
+        result = fileName;
       } else if ( srcStat.isDirectory() ) {
-        _cpDir(subSrcPath, subDstPath);
+        result = _cpDir(subSrcPath, subDstPath);
       }
+      return result;
     });
   }
 }
@@ -98,6 +93,6 @@ function installPackage(packageName: string): Promise<string> {
 }
 
 export {
-  exec,
+  initApp,
   cpDir,
 };

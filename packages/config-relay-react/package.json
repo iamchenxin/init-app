@@ -6,6 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "homepage": "https://github.com/iamchenxin/init-app",
+  "bugs": {
+    "url": "https://github.com/iamchenxin/init-app/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamchenxin/init-app.git"
+  },
   "author": "iamchenxin",
   "license": "MIT",
   "dependencies": {
