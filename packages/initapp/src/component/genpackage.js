@@ -3,7 +3,7 @@
 **/
 import type {
   ObjectMap,
-} from './utils.js';
+} from './simpletools.js';
 
 type Config = {
   name: string

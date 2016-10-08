@@ -24,6 +24,6 @@ _yargs_completions()
 
     return 0
 }
-echo 'aaaa'
-complete -F _yargs_completions ./index.js
+echo 'add auto completion for current shell, should exec like `source completion.sh`'
+complete -F _yargs_completions iapp
 ###-end-cmts.js-completions-###

@@ -17,9 +17,7 @@ function commandList() {
       .demand(1);
     },
     handler: function(argv) {
-      initApp(argv.package, argv.appName, {
-        ignore: ['__tests__', '__mocks__', 'node_modules'],
-      });
+      initApp(argv.package, argv.appName);
     },
   };
 
