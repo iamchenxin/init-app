@@ -6,6 +6,17 @@ import 'babel-polyfill';
 const yargs = require('yargs');
 import { initApp } from './init.js';
 import { update } from './update.js';
+process.on('unhandledRejection', (reason, promise) => {
+
+  console.log(`Unhandled Rejection.
+reason: ${reason}
+\nAt Promise:`, promise);
+  throw reason;
+
+//  console.log(`Unhandled Rejection. \n reason: ${reason}`);
+  // application specific logging, throwing an error, or other logic here
+});
+
 
 function commandList() {
   const initCMD = {
@@ -44,11 +55,19 @@ function commandList() {
   yargs.command(initCMD).command(updateCMD)
   .option('package', {
     alias: 'p',
-    describe: 'package location',
-    demand: true,
+    describe: 'offical package',
+    choices: ['config-react', 'config-relay-react'],
+//    demand: true,
+    type: 'string',
+  })
+  .option('custompackage', {
+    alias: 'c',
+    describe: 'custom package location',
+//    demand: true,
     type: 'string',
   })
   .global('package')
+  .global('custompackage')
   .help()
   .alias('h', 'help')
   .completion('completion')
