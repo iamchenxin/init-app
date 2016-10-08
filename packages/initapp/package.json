@@ -14,7 +14,9 @@
   "main": "./lib/index.js",
   "license": "MIT",
   "scripts": {
-    "myt1": "./scripts/t1.js"
+    "test": "npm run jest",
+    "lint": "node_modules/.bin/eslint .",
+    "jest": "NODE_ENV=test jest $@"
   },
   "bin": {
     "iapp": "./lib/index.js"

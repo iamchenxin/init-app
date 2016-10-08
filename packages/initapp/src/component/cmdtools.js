@@ -6,6 +6,7 @@ const paths = require('../../config/config.js').paths;
 import {
   mustbe,
   mapFromKeys,
+  pathMustbeExist,
 } from './simpletools.js';
 
 type IappConfig = {
@@ -47,6 +48,29 @@ function cpDir(srcPath: string, dst: string, config: IappConfig) {
 // packageName is as the same as in npm, like package package@latest
 // return the installed package's full path.
 function installPackage(packageName: string): Promise<string> {
+  const stat = testPackageName(packageName);
+  switch ( stat ) {
+    case 'npm':
+      return installFromNPM(packageName);
+    case 'local':
+      return installFromLocal(packageName);
+  }
+  return Promise.reject('not a valid package name|path: ${packageName}');
+}
+
+type PackageLocation = 'npm'|'local'|'unknown';
+function testPackageName(packageName: string): PackageLocation {
+  const npm_exp = /^[a-zA-z_]\w+@{0,1}[\w\.]*$/;
+  const local_exp = /^[\.\/~].+/;
+  if ( packageName.match(npm_exp) ) {
+    return 'npm';
+  } else if (packageName.match(local_exp)) {
+    return 'local';
+  }
+  return 'unknown';
+}
+
+function installFromNPM(packageName: string): Promise<string> {
   return new Promise(function(resolve, reject) {
     const args = [
       'install', '--save-dev', '--save-exact', packageName,
@@ -63,9 +87,19 @@ function installPackage(packageName: string): Promise<string> {
   });
 }
 
+function installFromLocal(packagePath: string): Promise<string> {
+  return new Promise(function(resolve, reject) {
+    const fullPath = path.resolve(packagePath);
+    pathMustbeExist(path.resolve(fullPath, 'package.json'),
+      `${fullPath} is not a valid npm package. Must have a package.json in it`);
+    resolve(fullPath);
+  });
+}
+
 export {
   cpDir,
   installPackage,
+  testPackageName,
 };
 export type {
   IappConfig,

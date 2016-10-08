@@ -7,7 +7,8 @@ import {
 } from './component/cmdtools.js';
 import { regeneratePackageJSON } from './component/genpackage.js';
 
-async function initApp(packageName: string, dstDir: string) {
+async function initApp(packageName: string, _dstDir: string) {
+  const dstDir = path.resolve(_dstDir); // make sure it is absolute path
   const srcPath = await installPackage(packageName);
   const modifiedFiles = cpDir(srcPath, dstDir, {
     ignore: ['__tests__', '__mocks__', 'node_modules'],
