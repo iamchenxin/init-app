@@ -1,6 +1,6 @@
 {
   "name": "initapp",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "init an app",
   "homepage": "https://github.com/iamchenxin/init-app",
   "bugs": {
@@ -11,12 +11,20 @@
     "url": "https://github.com/iamchenxin/init-app.git"
   },
   "author": "iamchenxin",
-  "main": "./lib/index.js",
   "license": "MIT",
+  "main": "./lib/index.js",
+  "files": [
+    "config",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "npm run jest",
     "lint": "node_modules/.bin/eslint .",
-    "jest": "NODE_ENV=test jest $@"
+    "jest": "NODE_ENV=test jest $@",
+    "build": "gulp clean && gulp build ",
+    "prepublish": "npm run build"
   },
   "bin": {
     "iapp": "./lib/index.js"
