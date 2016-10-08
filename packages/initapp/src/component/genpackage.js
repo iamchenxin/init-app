@@ -5,7 +5,7 @@ import type {
   ObjectMap,
 } from './simpletools.js';
 
-type Config = {
+type PackageConfig = {
   name: string
 };
 
@@ -37,7 +37,7 @@ function removeParams(configedJSON: ObjectMap): ObjectMap {
   return configedJSON;
 }
 
-function regeneratePackageJSON(packageJSON: ObjectMap, appConfig: Config)
+function regeneratePackageJSON(packageJSON: ObjectMap, appConfig: PackageConfig)
 : ObjectMap {
   let configedJSON = Object.assign(packageJSON, appConfig);
   configedJSON =  removeParams(configedJSON);
