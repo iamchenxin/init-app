@@ -1,10 +1,12 @@
 // @flow
 const fs = require('fs-extra');
+const fs2 = require('fs');
 const path = require('path');
 const proc = require('child_process');
 const semver = require('semver');
 const paths = require('../config/config.js').paths;
 import { print } from '../scripts/log.js';
+import { regeneratePackageJSON } from './genpackage.js';
 
 type CopyConfig = {
   ignore?: Array<string>,
@@ -37,9 +39,20 @@ function mapFromKeys(keys?: Array<string>): {[key: string]: number} {
   return ob;
 }
 
-async function initApp(packageName: string, dst: string, config: CopyConfig) {
+async function initApp(packageName: string, dstDir: string, config: CopyConfig) {
   const srcPath = await installPackage(packageName);
-  return cpDir(srcPath, dst, config);
+  const modifiedFiles = cpDir(srcPath, dstDir, config);
+  const packageJSONPath = path.resolve(dstDir, 'package.json');
+  const content = fs2.readFileSync(packageJSONPath, 'utf8');
+  const newPackageJSON = regeneratePackageJSON(JSON.parse(content), {
+    name: path.basename(dstDir),
+    author: String(process.env['USER']),
+  });
+  fs2.writeFileSync(packageJSONPath,
+    JSON.stringify(newPackageJSON, null, 2),
+    'utf8');
+
+  return modifiedFiles;
 }
 
 function cpDir(srcPath: string, dst: string, config: CopyConfig) {
@@ -73,7 +86,7 @@ function cpDir(srcPath: string, dst: string, config: CopyConfig) {
   }
 }
 
-// packageName is the same as in npm, like package package@latest
+// packageName is as the same as in npm, like package package@latest
 // return the installed package's full path.
 function installPackage(packageName: string): Promise<string> {
   return new Promise(function(resolve, reject) {
