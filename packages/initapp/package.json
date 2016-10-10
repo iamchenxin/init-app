@@ -24,12 +24,12 @@
     "lint": "node_modules/.bin/eslint .",
     "jest": "NODE_ENV=test jest $@",
     "build": "gulp clean && gulp build ",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "bnode": "NODE_ENV=dev babel-node"
   },
   "bin": {
     "iapp": "./lib/index.js"
   },
-  "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.16.0",
     "fs-extra": "^0.30.0",
@@ -37,6 +37,7 @@
     "yargs": "^6.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.16.0",
     "babel-core": "^6.14.0",
     "babel-eslint": "^6.1.2",
     "babel-jest": "^15.0.0",
