@@ -1,0 +1,31 @@
+// @flow
+declare class WebCompilerClass {
+  build(): void,
+  watch(): void,
+  HotServer(web_port: number, api_port: number): void,
+}
+
+type Gulpscripts = {
+  outputFlowJS: (src: string, dst: string) => Object,
+  compileJS: (src: string, dst: string, babelJson: Object) => Object,
+  test: (v: string) => void,
+};
+
+type Webpackscripts = {
+  WebCompiler: Class<WebCompilerClass>,
+};
+
+type Utils = {
+  rmdir: (pathNames: Array<string>) => void,
+  readRC: (filePath: string) => Object,
+}
+
+type Out = {
+  gulpscripts: Gulpscripts,
+  webpackscripts: Webpackscripts,
+  utils: Utils,
+};
+
+declare var out:Out;
+
+module.exports = out;
