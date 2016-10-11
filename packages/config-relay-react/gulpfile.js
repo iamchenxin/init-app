@@ -1,34 +1,26 @@
 // @flow
 /*eslint-env node */
 var gulp = require('gulp');
-const gScript = require('./scripts/gulp.scripts.js');
+const initScripts = require('init-scripts');
+
+const gScript = initScripts.gulpscripts;
 //var gutil =require('gulp-util');
-const utils = require('./scripts/utils.js');
-const web = require('./scripts/webpack.scripts.js');
-const ports = require('./config/config.js').ports;
+const webpackscripts = initScripts.webpackscripts;
+const base = require('./config/base.js');
+const ports = base.ports;
 
-
-gulp.task('lib', function() {
-  return gScript.stdGulpTrans('src', 'lib');
+gulp.task('sler', function() {
+  gScript.test(' 你好 ');
+  console.log(__dirname);
+  console.log('\n\n paths:\n');
+  console.dir(base.paths);
 });
 
-gulp.task('flow', function() {
-  return gScript.withFlowJSType('src', 'lib');
-});
-
-gulp.task('build', ['lib', 'flow'], function() {
-  return gScript.stdGulpTrans('src/common', 'dst/common');
-});
-
-gulp.task('clean', function() {
-  return utils.rmdir([
-    'lib',
-    'index.js',
-    'index.js.flow',
-    'index.js.map',
-  ] );
-});
+const webpackhot = require('./config/webpack.hot.js');
+console.dir(initScripts);
+const HotCompiler = new webpackscripts.WebCompiler(webpackhot);
 
 gulp.task('dev-server', () => {
-  return web.devServer(ports.web);
+
+  return HotCompiler.HotServer(ports.web, 8080);
 });

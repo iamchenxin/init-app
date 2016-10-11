@@ -7,7 +7,7 @@ class Box extends React.Component {
     //console.dir(this.props);
     return (
       <div>
-        hehe.thia is a new
+        hehe.thia is a new !!~~~~
         {(() => {
           return this.props.nameSeach.results.edges.map(edge => {
             console.dir(edge.node);

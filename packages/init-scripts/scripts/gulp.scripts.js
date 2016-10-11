@@ -4,12 +4,10 @@ var babel = require('gulp-babel');
 var sourcemaps = require('gulp-sourcemaps');
 var rename = require('gulp-rename');
 var path = require('path');
-const paths = require('../config/config.js').paths;
 //var gutil =require('gulp-util');
-const utils = require('./utils.js');
 
 // ........functions .......
-function withFlowJSType(src, dst) {
+function outputFlowJS(src, dst) {
   var srcPath = [src + '/**/*.js',
     '!' + src + '/**/__tests__/**', '!' + src + '/**/__mocks__/**'];
   return gulp
@@ -18,21 +16,29 @@ function withFlowJSType(src, dst) {
     .pipe(gulp.dest(dst));
 }
 
-function stdGulpTrans(src, dst) {
+// compile Javascript with babel. output sourcemaps
+// The babelrc is exist! Because babel-node!
+// Seems there is no convenice way to pass config to babel-node.
+function compileJS(src, dst, babelJson) {
   var sourceRoot = path.join(__dirname, src);
   var srcPath = [src + '/**/*.js',
     '!' + src + '/**/__tests__/**', '!' + src + '/**/__mocks__/**'];
   return gulp
     .src(srcPath)
     .pipe(sourcemaps.init())
-    .pipe(babel(utils.readRC(paths.babelrc)) )
+    .pipe(babel( babelJson ) )
     .pipe(sourcemaps.write('.', {
       includeContent: true, sourceRoot: sourceRoot, debug:true,
     }))
     .pipe(gulp.dest(dst));
 }
 
+function test(v) {
+  console.log('hello ! ' + v);
+}
+
 module.exports = {
-  withFlowJSType: withFlowJSType,
-  stdGulpTrans: stdGulpTrans,
+  outputFlowJS: outputFlowJS,
+  compileJS: compileJS,
+  test: test,
 };

@@ -1,5 +1,5 @@
 // @flow
-const config = require('../config/config.js');
+const config = require('./base.js');
 const paths = config.paths;
 //const ports = config.ports;
 var webpack = require('webpack');
@@ -42,8 +42,4 @@ const config_dev = {
   },
 };
 
-
-
-module.exports = {
-  dev: config_dev,
-};
+module.exports = config_dev;

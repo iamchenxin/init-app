@@ -30,13 +30,12 @@ const paths = {
   appEntry: resolveApp('src/index.js'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
-  testsSetup: resolveApp('src/setupTests.js'),
   appNodeModules: resolveApp('node_modules'),
   ownNodeModules: resolveApp('node_modules'),
   babelrc: resolveApp('.babelrc'),
   nodePaths: nodePaths,
-  relayplugin: resolveApp('scripts/babelrelayplugin.js'),
-  schema: resolveApp('config/schema.json'),
+  relayplugin: resolveApp('config/babelrelayplugin.js'),
+  schema: resolveApp('data/schema.json'),
 };
 
 const ports = {
