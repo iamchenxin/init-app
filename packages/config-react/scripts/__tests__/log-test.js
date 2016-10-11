@@ -1,4 +1,4 @@
-const { log, format} = require('../log.js');
+const { format} = require('../log.js');
 
 
 describe('log.js', () => {

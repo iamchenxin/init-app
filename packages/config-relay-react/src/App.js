@@ -6,7 +6,7 @@ import React from 'react';
 import Relay from 'react-relay';
 import Box from './component/box.js';
 
-function App(props: null) {
+function App(props ) {
   console.log('hello!');
   console.dir(props.nameSeach);
   return (

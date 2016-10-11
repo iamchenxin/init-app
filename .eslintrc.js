@@ -6,7 +6,7 @@ const ERROR = 2;
 module.exports = {
   "parser": "babel-eslint",
   "plugins": [
-        "flowtype"
+    "flowtype"
   ],
   "rules": {
     // fbjs: WARNING

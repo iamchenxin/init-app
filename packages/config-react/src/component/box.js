@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 const style = {
-  backgroundColor: '#345678'
+  backgroundColor: '#345678',
 };
 
 function Box() {
