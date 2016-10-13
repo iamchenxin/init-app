@@ -1,22 +1,14 @@
 // @flow
 /*eslint-env node */
-var gulp = require('gulp');
-const gScript = require('./scripts/gulp.scripts.js');
-//var gutil =require('gulp-util');
-const utils = require('./scripts/utils.js');
-const web = require('./scripts/webpack.scripts.js');
-
+const gulp = require('gulp');
+const base = require('./config/base.js');
+const scripts = require('init-scripts');
+const hotConfig = require('./config/webpack.hot.js');
+const { utils } = scripts;
 
 gulp.task('lib', function() {
-  return gScript.stdGulpTrans('src', 'lib');
-});
-
-gulp.task('flow', function() {
-  return gScript.withFlowJSType('src', 'lib');
-});
-
-gulp.task('build', ['lib', 'flow'], function() {
-  return gScript.stdGulpTrans('src/common', 'dst/common');
+  const babelJson = utils.readRC(base.paths.babelrc);
+  return scripts.gulpscripts.compileJS('src', 'lib', babelJson);
 });
 
 gulp.task('clean', function() {
@@ -28,6 +20,7 @@ gulp.task('clean', function() {
   ] );
 });
 
-gulp.task('dev-server', () => {
-  return web.devServer(3000);
+gulp.task('hot', () => {
+  const compiler = new scripts.webpackscripts.WebCompiler(hotConfig);
+  return compiler.HotServer(base.ports.web);
 });

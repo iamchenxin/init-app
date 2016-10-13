@@ -24,16 +24,24 @@ var nodePaths = (process.env.NODE_PATH || '')
   .filter(Boolean)
   .map(resolveApp);
 
-// config after eject: we're in ./config/
-module.exports = {
+const paths = {
   appBuild: resolveApp('build'),
   appHtml: resolveApp('src/index.html'),
   appEntry: resolveApp('src/index.js'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
-  testsSetup: resolveApp('src/setupTests.js'),
   appNodeModules: resolveApp('node_modules'),
   ownNodeModules: resolveApp('node_modules'),
   babelrc: resolveApp('.babelrc'),
   nodePaths: nodePaths,
+};
+
+const ports = {
+  graphql: 8080,
+  web: 3002,
+};
+
+module.exports = {
+  paths: paths,
+  ports: ports,
 };

@@ -1,12 +1,12 @@
 // @flow
-const paths = require('../config/paths.js');
+const paths = require('./base.js').paths;
 var webpack = require('webpack');
 
 const config_dev = {
   devtool: 'eval', //   devtool:'source-map',
   entry:[
     'react-hot-loader/patch',
-    'webpack-dev-server/client?http://localhost:3000', //?http://localhost:3000
+    'webpack-dev-server/client?/', //?http://localhost:${ports.web}
     'webpack/hot/only-dev-server',
     paths.appEntry,
   ],
@@ -39,8 +39,4 @@ const config_dev = {
   },
 };
 
-
-
-module.exports = {
-  dev: config_dev,
-};
+module.exports = config_dev;
