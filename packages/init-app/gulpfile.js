@@ -1,0 +1,35 @@
+// @flow
+/*eslint-env node */
+const gulp = require('gulp');
+const gutil = require('gulp-util');
+const path = require('path');
+const { paths } = require('./config/base.js');
+const scripts = require('init-scripts');
+const { utils } = scripts;
+
+gulp.task('lib', function() {
+  const babelJson = utils.readRC(paths.babelrc);
+  // src -> lib
+  return scripts.gulpscripts.compileJS(paths.src, paths.dst, babelJson);
+});
+
+gulp.task('flow', function() {
+  return scripts.gulpscripts.outputFlowJS(paths.src, paths.dst);
+});
+
+gulp.task('clean', function() {
+  return utils.rmdir([
+    paths.dst,
+    'index.js',
+    'index.js.flow',
+    'index.js.map',
+  ] );
+});
+
+gulp.task('build', ['lib', 'flow'], function() {
+  const rsrc = path.relative(__dirname, paths.src);
+  const rdst = path.relative(__dirname, paths.dst);
+  gutil.log('Compile Javascript Files...');
+  gutil.log(`From: './${rsrc}' To: './${rdst}'`);
+  //gutil.log(`To: './${rdst}'`);
+});
