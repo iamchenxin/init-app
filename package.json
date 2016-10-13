@@ -1,4 +1,5 @@
 {
+  "name": "init-app-source",
   "scripts": {
     "test": "npm run jest",
     "lint": "eslint ./packages",
