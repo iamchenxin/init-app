@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "gulp build",
     "start": "node ./lib/index.js",
+    "dev": "npm run start",
     "schema": "node ./lib/updateSchema.js"
   },
   "homepage": "https://github.com/iamchenxin/init-app",

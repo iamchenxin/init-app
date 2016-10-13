@@ -5,7 +5,8 @@
   "main": "./build/bundle.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "hot": "gulp hot"
+    "hot": "gulp hot",
+    "dev": "npm run hot"
   },
   "homepage": "https://github.com/iamchenxin/init-app",
   "bugs": {
