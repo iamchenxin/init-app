@@ -2,7 +2,7 @@
 declare class WebCompilerClass {
   build(): void,
   watch(): void,
-  HotServer(web_port: number, api_port: number): void,
+  HotServer(web_port: number, api_port?: number): void,
 }
 
 type Gulpscripts = {

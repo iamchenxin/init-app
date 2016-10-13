@@ -28,10 +28,13 @@ class WebCompiler {
     });
   }
 
+  // HotServer(web_port: number, api_port?: number): void,
   HotServer(web_port, api_port) {
+    const api_proxy = api_port ? { '/graphql': `http://localhost:${api_port}` }
+      : undefined;
     const server = new WebpackDevServer(this.compiler, {
       contentBase: './src',
-      proxy: {'/graphql': `http://localhost:${api_port}`},
+      proxy: api_proxy,
       hot: true,
       publicPath: this.config.output.publicPath,
       watchOptions: {
