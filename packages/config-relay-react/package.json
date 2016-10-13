@@ -24,7 +24,17 @@
     "express": "^4.14.0"
   },
   "devDependencies": {
-    "init-scripts": "^0.0.2"
+    "init-scripts": "^0.0.2",
+    "babel-core": "^6.17.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-latest": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "gulp": "^3.9.1",
+    "react-hot-loader": "^3.0.0-beta.5",
+    "webpack": "^2.1.0-beta.25",
+    "webpack-dev-server": "^2.1.0-beta.5",
+    "babel-relay-plugin": "^0.9.3"
   },
   "relayrc": {
     "schema": "config/schema.json"
