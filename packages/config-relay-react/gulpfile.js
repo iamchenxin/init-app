@@ -20,7 +20,6 @@ const webpackhot = require('./config/webpack.hot.js');
 console.dir(initScripts);
 const HotCompiler = new webpackscripts.WebCompiler(webpackhot);
 
-gulp.task('dev-server', () => {
-
+gulp.task('hot', () => {
   return HotCompiler.HotServer(ports.web, 8080);
 });
