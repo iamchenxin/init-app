@@ -33,6 +33,8 @@ const paths = {
   // ---
   src: resolveApp('src'),
   dst: resolveApp('lib'),
+  rcDir: path.resolve('~/.init-app'),
+  rcFile: path.resolve('~/.init-app/.iapprc')
 };
 
 module.exports = {
