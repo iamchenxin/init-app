@@ -1,3 +1,4 @@
+// @flow
 /*eslint-env node */
 var gulp = require('gulp');
 var babel = require('gulp-babel');
@@ -17,10 +18,13 @@ function outputFlowJS(src, dst) {
 }
 
 // compile Javascript with babel. output sourcemaps
-// The babelrc is exist! Because babel-node!
+// The babelrc need to be exist, Because babel-node!
 // Seems there is no convenice way to pass config to babel-node.
 function compileJS(src, dst, babelJson) {
-  var sourceRoot = path.join(__dirname, src);
+  // process.cwd() will be the exec path.
+  // __dirname will be this file(gulp.scripts.js)'s path.
+  // path.resolve to allow `src` be relative or absolute.
+  var sourceRoot = path.resolve(process.cwd(), src);
   var srcPath = [src + '/**/*.js',
     '!' + src + '/**/__tests__/**', '!' + src + '/**/__mocks__/**'];
   return gulp
