@@ -24,17 +24,25 @@ var nodePaths = (process.env.NODE_PATH || '')
   .filter(Boolean)
   .map(resolveApp);
 
+const home = process.env.HOME? process.env.HOME: process.cwd();
+
 const paths = {
   packageJson: resolveApp('package.json'),
   nodeModules: resolveApp('node_modules'),
   ownNodeModules: resolveApp('node_modules'),
   babelrc: resolveApp('.babelrc'),
   nodePaths: nodePaths,
+  home: home,
   // ---
   src: resolveApp('src'),
   dst: resolveApp('lib'),
-  rcDir: path.resolve('~/.init-app'),
-  rcFile: path.resolve('~/.init-app/.iapprc')
+  rcDir: path.resolve(home, './.init-app'),
+  rcFile: path.resolve(home, './.init-app/iapprc.js'),
+  rcFileTpl: resolveApp('./data/iapprc.js'),
+
+  resolveToHome(relativePath /*: string*/) {
+    return path.resolve(home,relativePath);
+  },
 };
 
 module.exports = {

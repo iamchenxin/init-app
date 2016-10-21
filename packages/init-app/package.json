@@ -24,7 +24,8 @@
     "lint": "node_modules/.bin/eslint .",
     "jest": "NODE_ENV=test jest $@",
     "build": "gulp clean && gulp build ",
-    "bnode": "NODE_ENV=dev babel-node"
+    "bnode": "NODE_ENV=dev babel-node",
+    "ts": "babel-node -- src/ts/ts.js"
   },
   "bin": {
     "iapp": "./lib/index.js"
@@ -37,13 +38,15 @@
     "yargs": "^6.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
-    "init-preset-node": "^6.8.1",
     "flow-bin": "^0.33.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.6.0",
-    "init-scripts": "^0.0.2"
+    "init-preset-node": "^6.8.1",
+    "init-scripts": "^0.0.2",
+    "jest": "^16.0.2"
   }
 }

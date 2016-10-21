@@ -2,7 +2,7 @@
 /* @flow
  * use `npm link` to link to global bin folder
 **/
-import 'babel-polyfill';
+// import 'babel-polyfill'; // nodejs v6 do not need this!
 const yargs = require('yargs');
 import { initApp } from './init.js';
 import { update } from './update.js';

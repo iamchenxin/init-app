@@ -15,4 +15,18 @@ function ts() {
   console.dir(modifiedFiles);
 }
 
-ts();
+async function as() {
+  return new Promise(function(resolve, reject) {
+    setTimeout( () => {
+      resolve('heheh');
+    }, 2000);
+  });
+}
+
+async function as2() {
+  console.log('---------');
+  const v = await as();
+  console.log(v);
+}
+
+as2();
