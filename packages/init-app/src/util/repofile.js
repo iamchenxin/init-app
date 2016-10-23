@@ -26,17 +26,24 @@ const cp:CopyOptions = {
 
 const path = require('path');
 const fs = require('fs');
-type CopyConfig = {
-  [key: string]: PackageType,
+export type CopyConfig = {
+  gitUrl: string,
+  commandName: string,
+  packages: {
+    [key: string]: PackageType,
+  }
 };
 
-type PackageType = {
+export type PackageType = {
   stat?: 'dir'|'file', // default is 'dir'
   dest?: string, // dest path, default is the name of this package
   relativeDir?: 'approot'|'parent', // default is parent
   files?: {
     [key: string]: PackageFileOption,
   },
+};
+type PackageFiles = {
+  [key: string]: PackageFileOption,
 };
 
 const COPY = 1;
@@ -59,7 +66,7 @@ type InnerPackageType = {
 };
 
 
-class PkgCopy {
+export class PkgCopy {
   destRoot:string;
   srcRoot:string;
   constructor(destPath:string, srcPath: string ) {
@@ -67,8 +74,9 @@ class PkgCopy {
     this.srcRoot = srcPath;
   }
   copy(opts: CopyConfig) {
-    for (const pkgName in opts) {
-      this._copyPackage(opts[pkgName], pkgName, this.destRoot, this.srcRoot);
+    const packages = opts.packages;
+    for (const pkgName in packages) {
+      this._copyPackage(packages[pkgName], pkgName, this.destRoot, this.srcRoot);
     }
   }
 
@@ -82,7 +90,7 @@ class PkgCopy {
 
     switch (typeof node) {
       case 'object':
-        stat = node.stat? node.stat : stat;
+        stat = node.files? 'dir' : 'file';
         relativeDestDir = node.relativeDir? node.relativeDir: relativeDestDir;
         _dest =  node.dest? node.dest : _dest;
         destUpPath = (relativeDestDir == 'parent')? destUpPath: this.destRoot;
@@ -112,6 +120,7 @@ class PkgCopy {
   _copyPackage( pkg: PackageFileOption, upName:string, destUp: string, srcUp:string ) {
     const { destABS, srcABS, files, stat } =
       this._resolvePkgOption(pkg, upName, destUp, srcUp);
+    console.log(`${srcABS} => ${destABS}, (${stat}),  ${String(files)} ,\n`);
     switch (stat) {
       case 'file':
       case 'copy':
@@ -119,17 +128,48 @@ class PkgCopy {
         break;
       case 'mkdir':
         fsMkdir( destABS);
+        break;
       case 'dir':
         for (const nodeName in files) {
-          return this._copyPackage(files[nodeName], nodeName, destABS, srcABS);
+          console.log(nodeName);
+          this._copyPackage(files[nodeName], nodeName, destABS, srcABS);
         }
+        break;
       default:
         throw new Error(`innerPkg.stat should not be ${stat}`);
     }
   }
+
+  _copyPackage2(upfiles: PackageType, upName:string, destUp: string, srcUp:string ) {
+
+    for (const nodeName in upfiles) {
+      const { destABS, srcABS, files, stat } =
+        this._resolvePkgOption(upfiles[nodeName], upName, destUp, srcUp);
+      switch (stat) {
+        case 'file':
+        case 'copy':
+          fsCopy( destABS, srcABS);
+          break;
+        case 'mkdir':
+          fsMkdir( destABS);
+          break;
+        case 'dir':
+          console.log(nodeName);
+          if (files == null) { throw new Error('eeee'); }
+          // for tail call ! return.
+          return this._copyPackage(files, nodeName, destABS, srcABS);
+        default:
+          throw new Error(`innerPkg.stat should not be ${stat}`);
+        }
+    }
+  }
+
 }
 
+
+
 function fsCopy(dst: string, src: string) {
+//  console.log(`src:(${src}) =>  (${dst})`);
   const stat = fs.statSync(src);
   if( stat.isFile() ){
     const srcF = fs.createReadStream(src);

@@ -1,77 +1,39 @@
 // @flow
-
+import type { CopyConfig , PackageType } from '../util/repofile.js';
 
 const COPY = 1;
-const TOUCH = 2;
+const MKDIR = 2;
 const CHECK = 4;
-const RENAME = ':rename';
-const FILES = ':files';
-type CopyOptions = {
-  path: string,
-  package: {
-    [key: string]:$Shape<PackageOptions>,
-  },
-};
 
-type PackageOptions = {
-  'rename'?: string,
-  files?:{
-    // string = copy and rename!
-    // 1 ,2 ,4 = COPY, TOUCH , CHECK
-    //
-    [key: string]: PackageOptions_re|1|2|4|string,
-  },
-};
-
-type PackageOptions_re = {
-  'rename'?: string,
-  files?:{
-    // string = copy and rename!
-    // 1 ,2 ,4 = COPY, TOUCH , CHECK
-    //
-    [key: string]: PackageOptions|1|2|4|string,
-  },
-};
-
-function getCp(appName) {
-  const cp:CopyOptions = {
-    path: './packages',
-    package:{
-      'config-relay-graphql':{
-        'rename': appName,
-        'files': {
-          '.babelrc': COPY,
-          '.flowconfig': COPY,
-          'gulpfile.js': COPY,
-          'package.json': CHECK,
-
-          'config': COPY,
-
-          'data':{ // just mk an empty dirPath
-          // none rename means keeps old name.
-          },
-
-          'src': COPY,
-        },
+const options: CopyConfig = {
+  gitUrl: 'https://github.com/iamchenxin/init-app.git',
+  commandName: 'lerna-conf',
+  packages: {
+    './packages/config-relay-graphql':{
+      dest:'.',
+      'files': {
+        '.babelrc': COPY,
+        '.flowconfig': COPY,
+        'gulpfile.js': COPY,
+        'package.json': COPY,
+        'config': COPY,
+        'data': MKDIR,
+        'src': COPY,
       },
     },
-  };
-  const additional:CopyOptions = {
-    path: '.',
-    package:{
-      '.': {
-        'rename': '.',
-        'files': {
-          '.eslintignore': COPY,
-          '.eslintrc.js': COPY,
-          '.gitignore': COPY,
-          'package.json': CHECK,
-        },
+
+    '.': {
+      'files': {
+        '.eslintignore': COPY,
+        '.eslintrc.js': COPY,
+        '.gitignore': COPY,
+        'package.json': COPY,
       },
     },
-  };
-  return [cp, additional];
+  }
 }
+
+
 const fs = require('fs');
 function buildPackage(packageJson, packageJson_ad) {
   try {
@@ -94,11 +56,6 @@ function buildPackage(packageJson, packageJson_ad) {
 }
 
 
-const repoCopy = {
-  url: 'https://github.com/iamchenxin/init-app.git',
-  repoName: 'init-app',
-  options: getCp('testapp'),
-};
 
 
-module.exports = repoCopy;
+module.exports = options;

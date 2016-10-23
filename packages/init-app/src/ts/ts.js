@@ -6,6 +6,8 @@ const child = require('child_process');
 import { Git } from '../util/git.js';
 import { copy } from '../util/copybyoptions.js';
 const relayRepo = require('../data/relay-graphql.js');
+import { PkgCopy } from '../util/repofile.js';
+const path = require('path');
 
 function ts() {
 
@@ -52,6 +54,20 @@ function ts4() {
 }
 
 function ts5() {
-  copy('/home/iamchenxin/tmp/ts', relayRepo);
+//  copy('/home/iamchenxin/tmp/ts', relayRepo);
 }
-ts5();
+const fs = require('fs');
+async function ts6() {
+  const appName = 'hehe';
+  const destDir = '/home/iamchenxin/tmp/ts2';
+  const git = new Git(
+    relayRepo.gitUrl,
+    '/home/iamchenxin/tmp/cache',
+  );
+  const repo = await git.getRepo();
+  console.log(repo);
+  const cp = new PkgCopy(path.resolve(destDir,appName), repo);
+//  fs.mkdirSync(path.resolve(destDir,appName));
+  cp.copy(relayRepo);
+}
+ts6();
