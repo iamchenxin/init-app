@@ -2,7 +2,7 @@
 import {
   cpDir,
 //  installPackage,
-} from './component/cmdtools.js';
+} from '../component/cmdtools.js';
 
 function ts() {
   const modifiedFiles = cpDir(

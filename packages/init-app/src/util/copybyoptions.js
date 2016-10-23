@@ -68,8 +68,7 @@ function copyByOption(dstPath:string, srcPath: string,pkg: PackageOptions) {
         if( fs.exists(subDst) == false) {
           fs.mkdirSync(subDst);
         }
-        copyByOption(subDst, subSrc, fileNameValue);
-        break;
+        return copyByOption(subDst, subSrc, fileNameValue); // node6.8 has tail call
       case 'string': // rename then pass to copy('number')
         dstName = fileNameValue;
       case 'number': // COPY|CHECK|IGNORE
@@ -93,9 +92,7 @@ function fsCopy(dst, src) {
     const srcF = fs.createReadStream(src);
     srcF.pipe( fs.createWriteStream(dst));
   } else if (stat.isDirectory()) {
-
     if( fs.existsSync(dst) == false) {
-
       fs.mkdirSync(dst);
     }
     fs.readdirSync(src).map( subPath => {
