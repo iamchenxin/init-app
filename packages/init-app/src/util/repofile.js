@@ -73,12 +73,7 @@ export class PkgCopy {
     this.destRoot = destPath;
     this.srcRoot = srcPath;
   }
-  copy(opts: CopyConfig) {
-    const packages = opts.packages;
-    for (const pkgName in packages) {
-      this._copyPackage(packages[pkgName], pkgName, this.destRoot, this.srcRoot);
-    }
-  }
+
 
   _resolvePkgOption(node: PackageFileOption, upName:string,
   destUpPath: string, srcUpPath: string): InnerPackageType {
@@ -93,6 +88,7 @@ export class PkgCopy {
         stat = node.files? 'dir' : 'file';
         relativeDestDir = node.relativeDir? node.relativeDir: relativeDestDir;
         _dest =  node.dest? node.dest : _dest;
+
         destUpPath = (relativeDestDir == 'parent')? destUpPath: this.destRoot;
         break;
       case 'string': // rename
@@ -117,34 +113,26 @@ export class PkgCopy {
     };
   }
 
-  _copyPackage( pkg: PackageFileOption, upName:string, destUp: string, srcUp:string ) {
-    const { destABS, srcABS, files, stat } =
-      this._resolvePkgOption(pkg, upName, destUp, srcUp);
-    console.log(`${srcABS} => ${destABS}, (${stat}),  ${String(files)} ,\n`);
-    switch (stat) {
-      case 'file':
-      case 'copy':
-        fsCopy( destABS, srcABS);
-        break;
-      case 'mkdir':
-        fsMkdir( destABS);
-        break;
-      case 'dir':
-        for (const nodeName in files) {
-          console.log(nodeName);
-          this._copyPackage(files[nodeName], nodeName, destABS, srcABS);
-        }
-        break;
-      default:
-        throw new Error(`innerPkg.stat should not be ${stat}`);
+  copy(opts: CopyConfig) {
+    const packages = opts.packages;
+    for (const pkgName in packages) {
+      const { destABS, srcABS, files, stat } = this._resolvePkgOption(
+        packages[pkgName], '.', this.destRoot, this.srcRoot);
+      console.log(destABS);
+      if( files == null ) { throw new Error('rr'); }
+      if( typeof files == 'number' ) { throw new Error('rr'); }
+      if( typeof files == 'string' ) { throw new Error('rr'); }
+
+      this._copyPackage((files:any), pkgName, destABS, srcABS);
     }
   }
 
-  _copyPackage2(upfiles: PackageType, upName:string, destUp: string, srcUp:string ) {
+  _copyPackage(upfiles: PackageType, upName:string, destUp: string, srcUp:string ) {
 
     for (const nodeName in upfiles) {
       const { destABS, srcABS, files, stat } =
         this._resolvePkgOption(upfiles[nodeName], upName, destUp, srcUp);
+        console.log(`(${srcABS}) => (${destABS}) ||(${stat})`);
       switch (stat) {
         case 'file':
         case 'copy':
