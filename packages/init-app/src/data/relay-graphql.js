@@ -1,5 +1,5 @@
 // @flow
-import type { CopyConfig , PackageType } from '../util/repofile.js';
+import type { CopyConfig  } from '../util/repofile.js';
 
 const COPY = 1;
 const MKDIR = 2;
@@ -8,7 +8,7 @@ const CHECK = 4;
 const options: CopyConfig = {
   gitUrl: 'https://github.com/iamchenxin/init-app.git',
   commandName: 'lerna-conf',
-  packages: {
+  files: {
     './packages/config-relay-graphql':{
       dest:'.',
       'files': {

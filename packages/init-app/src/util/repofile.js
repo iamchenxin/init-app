@@ -1,7 +1,7 @@
 // @flow
 /*
 const cp:CopyOptions = {
-  package:{
+  files:{
     './packages/config-relay-graphql':{
       'stat': 'dir',
       'destPath': appName,
@@ -29,41 +29,46 @@ const fs = require('fs');
 export type CopyConfig = {
   gitUrl: string,
   commandName: string,
-  packages: {
-    [key: string]: PackageType,
-  }
+  files: RcFiles,
 };
 
-export type PackageType = {
+
+export type RcObjectFile = {
   stat?: 'dir'|'file', // default is 'dir'
   dest?: string, // dest path, default is the name of this package
   relativeDir?: 'approot'|'parent', // default is parent
-  files?: {
-    [key: string]: PackageFileOption,
-  },
+  files?: RcFiles,
 };
-type PackageFiles = {
-  [key: string]: PackageFileOption,
-};
-
 const COPY = 1;
 const MKDIR = 2;
 const CHECK = 4;
-type PackageFileOption =
-  PackageType|
+type RcSimpleFile =
   1|2|4|  // 1 ,2 ,4 = COPY, MKDIR , CHECK
   string; // rename this file.
 
+type RcFile = RcObjectFile|RcSimpleFile;
+type RcFiles = {
+  [key: string]: RcObjectFile|RcSimpleFile,
+};
+
+
 // dest path, default is the name of this option
 // src path, default is the name of this option
-type InnerPackageType = {
-  stat: 'dir'|'file'|'copy'|'mkdir', // default is 'dir'
+type ResolvedDirFile = {
+  stat: 'dir',
   destABS: string,
   srcABS: string,
-  files?: {
-    [key: string]: PackageFileOption,
-  },
+  files: RcFiles,
 };
+
+type ResolvedSimpleFile = {
+  stat: 'file'|'copy'|'mkdir',
+  destABS: string,
+  srcABS: string,
+};
+
+
+type ResolvedFile = ResolvedDirFile|ResolvedSimpleFile;
 
 
 export class PkgCopy {
@@ -75,83 +80,95 @@ export class PkgCopy {
   }
 
 
-  _resolvePkgOption(node: PackageFileOption, upName:string,
-  destUpPath: string, srcUpPath: string): InnerPackageType {
-    let stat:'dir'|'file'|'copy'|'mkdir' = 'file';
+  _resolveSubFile(up: ResolvedDirFile, subFileName: string): ResolvedFile {
+    let stat: 'file'|'copy'|'mkdir' = 'file';
     let relativeDestDir = 'parent';
-    let _dest = upName;
-    let _src = upName;
-    const srcABS = path.resolve(srcUpPath, upName);
+    let _dest = subFileName;
+    let _src = subFileName;
+    const srcABS = path.resolve(up.srcABS, subFileName);
+    let destDir = up.destABS;
+    const subFile: RcFile = up.files[subFileName];
 
-    switch (typeof node) {
+    console.log(subFileName);
+    switch (typeof subFile) {
       case 'object':
-        stat = node.files? 'dir' : 'file';
-        relativeDestDir = node.relativeDir? node.relativeDir: relativeDestDir;
-        _dest =  node.dest? node.dest : _dest;
-
-        destUpPath = (relativeDestDir == 'parent')? destUpPath: this.destRoot;
+        relativeDestDir = subFile.relativeDir? subFile.relativeDir: relativeDestDir;
+        _dest =  subFile.dest? subFile.dest : _dest;
+        destDir = (relativeDestDir == 'parent')? up.destABS: this.destRoot;
+        const files = subFile.files; // to make flow pass.
+        if ( files != null) {
+          return {
+            stat:'dir',
+            destABS: path.resolve(destDir, _dest),
+            srcABS: srcABS,
+            files: files,
+          }
+        };
         break;
       case 'string': // rename
-        _dest = node;
+        _dest = subFile;
         break;
       case 'number': // COPY|MKDIR|IGNORE
-        if ( node == COPY ) {
+
+        if ( subFile == COPY ) {
           stat = 'copy';
-        } else if ( node === MKDIR) {
+        } else if ( subFile === MKDIR) {
           stat = 'mkdir';
         }
         break;
       default:
+    //  console.log(subFile, fileName);
         throw new Error('pkgfile broken _getInnerPkg');
     }
 
     return {
       stat:stat,
-      destABS: path.resolve(destUpPath, _dest),
+      destABS: path.resolve(destDir, _dest),
       srcABS: srcABS,
-      files: node.files,
     };
   }
 
-  copy(opts: CopyConfig) {
-    const packages = opts.packages;
-    for (const pkgName in packages) {
-      const { destABS, srcABS, files, stat } = this._resolvePkgOption(
-        packages[pkgName], '.', this.destRoot, this.srcRoot);
-      console.log(destABS);
-      if( files == null ) { throw new Error('rr'); }
-      if( typeof files == 'number' ) { throw new Error('rr'); }
-      if( typeof files == 'string' ) { throw new Error('rr'); }
+  _copyDir(up: ResolvedDirFile ) {
 
-      this._copyPackage((files:any), pkgName, destABS, srcABS);
-    }
-  }
-
-  _copyPackage(upfiles: PackageType, upName:string, destUp: string, srcUp:string ) {
-
-    for (const nodeName in upfiles) {
-      const { destABS, srcABS, files, stat } =
-        this._resolvePkgOption(upfiles[nodeName], upName, destUp, srcUp);
-        console.log(`(${srcABS}) => (${destABS}) ||(${stat})`);
-      switch (stat) {
+    for (const fileName in up.files) {
+      const subFile: ResolvedFile = this._resolveSubFile(up, fileName);
+      switch (subFile.stat) {
         case 'file':
         case 'copy':
-          fsCopy( destABS, srcABS);
+          fsCopy( subFile.destABS, subFile.srcABS);
           break;
         case 'mkdir':
-          fsMkdir( destABS);
+          fsMkdir( subFile.destABS);
           break;
         case 'dir':
-          console.log(nodeName);
-          if (files == null) { throw new Error('eeee'); }
-          // for tail call ! return.
-          return this._copyPackage(files, nodeName, destABS, srcABS);
+          // should cast to tail call !
+          this._copyDir(subFile.files);
+          break;
         default:
-          throw new Error(`innerPkg.stat should not be ${stat}`);
+          throw new Error(`innerPkg.stat should not be ${subFile.stat}`);
         }
     }
   }
 
+  copy(opts: CopyConfig) {
+
+    const topLevelDir: ResolvedDirFile = {
+      stat: 'dir',
+      destABS: this.destRoot,
+      srcABS: this.srcRoot,
+      files: opts.files,
+    };
+    for (var fileName in topLevelDir.files) {
+      const topSubFile = this._resolveSubFile(topLevelDir, fileName);
+      if (topSubFile.stat === 'dir') { // DirPackageType
+        this._copyDir(topSubFile);
+      } else {
+        throw new Error('top level must be dir');
+      }
+    }
+  }
+
+// class end
 }
 
 
