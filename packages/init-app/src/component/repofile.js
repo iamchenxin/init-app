@@ -158,7 +158,7 @@ export class RepoCopy {
         }
         break;
       default:
-        throw new Error('pkgfile broken _getInnerPkg');
+        throw new Error('repo config file broken _resolveSubFile');
     }
 
     return {
@@ -184,7 +184,7 @@ export class RepoCopy {
           this._copyDir(subFile.files);
           break;
         default:
-          throw new Error(`innerPkg.stat should not be ${subFile.stat}`);
+          throw new Error(`file.stat should not be ${subFile.stat}`);
       }
     }
   }
@@ -202,7 +202,7 @@ export class RepoCopy {
       if (topSubFile.stat === 'dir') { // top level must be dir
         this._copyDir(topSubFile);
       } else {
-        throw new Error('top level must be dir');
+        throw new Error('top level must be a dir');
       }
     }
     const done = opts.script; // for flow
