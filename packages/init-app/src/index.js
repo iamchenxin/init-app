@@ -5,6 +5,7 @@
 // import 'babel-polyfill'; // nodejs v6 do not need this!
 const yargs = require('yargs');
 import { init, update } from './command/commands.js';
+import { getConfNames } from './component/confloader.js';
 process.on('unhandledRejection', (reason, promise) => {
 
   console.log(`Unhandled Rejection.
@@ -54,16 +55,16 @@ function commandList() {
   };
 
   yargs.command(initCMD).command(updateCMD)
-  .option('repo', {
+  .option('reponame', {
     alias: 'r',
-    describe: 'offical repo',
-    choices: ['react', 'relay-graphql'],
+    describe: 'offical repo name',
+    choices: getConfNames(),
 //    demand: true,
     type: 'string',
   })
   .option('conf', {
     alias: 'c',
-    describe: 'custom repo config file path',
+    describe: 'repo config file path, directly load by path',
 //    demand: true,
     type: 'string',
   })
@@ -73,6 +74,8 @@ function commandList() {
   .alias('h', 'help')
   .completion('completion')
   .recommendCommands()
+  .wrap(null)
+//  .wrap(yargs.terminalWidth())
   .argv;
 }
 

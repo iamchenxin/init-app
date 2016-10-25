@@ -49,8 +49,6 @@ function getConfNames(): Array<string> {
   return Array.from(confs.keys());
 }
 
-
-
 function requireConf(repoName: string): RepoFile {
   const confs = getConfs();
   const confPath = confs.get(repoName);
@@ -59,17 +57,16 @@ function requireConf(repoName: string): RepoFile {
   const mod:any = require(confPath);
   return mod;
 }
-/*
-function loadConf(repoName: string): RepoFile {
 
-
-  return {
-    copy: {},
-    update: {},
-  };
+function loadConf(confPath: string): RepoFile {
+  mustNot(confPath, null);
+  // $FlowFixMe Flow do not allow dynamic require
+  const mod:any = require(confPath);
+  return mod;
 }
-*/
+
 export {
   requireConf,
-//  loadConf,
+  getConfNames,
+  loadConf,
 };
