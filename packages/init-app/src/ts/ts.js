@@ -58,15 +58,15 @@ function ts5() {
 }
 const fs = require('fs');
 async function ts6() {
-  const appName = 'hehe';
-  const destDir = '/home/iamchenxin/tmp/ts88/app';
+  const appName = 'man';
+  const destDir = '/home/iamchenxin/tmp/ts88';
   const git = new Git(
-    relayRepo.gitUrl,
+    relayRepo.copy.gitUrl,
     '/home/iamchenxin/tmp/cache',
   );
   const repo = await git.getRepo();
   console.log(repo);
-  const cp = new PkgCopy(path.resolve(destDir,appName), repo);
-  cp.copy(relayRepo);
+  const cp = new PkgCopy(path.resolve(destDir, appName), repo);
+  cp.copy(relayRepo.copy);
 }
 ts6();

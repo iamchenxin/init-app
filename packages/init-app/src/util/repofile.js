@@ -1,38 +1,77 @@
-// @flow
-/*
-const cp:CopyOptions = {
-  files:{
-    './packages/config-relay-graphql':{
-      'stat': 'dir',
-      'destPath': appName,
-      'files': {
-        '.babelrc': COPY,
-        '.flowconfig': COPY,
-        'gulpfile.js': COPY,
-        'package.json': CHECK,
-
-        'config': COPY,
-
-        'data':{ // just mk an empty dirPath
-        // none rename means keeps old name.
-        },
-
-        'src': COPY,
-      },
-    },
-  },
-};
-*/
+/* @flow
+ *
+**/
 
 const path = require('path');
 const fs = require('fs');
+const semver = require('semver');
 import {RepoFileError} from './error.js';
 export type CopyConfig = {
   gitUrl: string,
   commandName: string,
+  script?: (appInfo: AppInfo) => void,
   files: RcFiles,
 };
 
+class AppInfo {
+  destABS: string;
+  srcABS: string;
+  appName: string;
+  mergeDep: (pJsons: Array<Object>, excludePkgs?: Array<string>) => Dep;
+  mergeDevDep: (pJsons: Array<Object>, excludePkgs?: Array<string>) => Dep;
+  constructor(destABS: string, srcABS: string, appName: string) {
+    this.destABS = destABS;
+    this.srcABS = srcABS;
+    this.appName = appName;
+  }
+  packageJsonSrc(relativePath: string): Object {
+    return JSON.parse( fs.readFileSync(
+      path.resolve(this.srcABS, relativePath), 'utf8') );
+  }
+  packageJsonDest(relativePath: string): Object {
+    return JSON.parse( fs.readFileSync(
+      path.resolve(this.destABS, relativePath), 'utf8') );
+  }
+  writeToDest(relativePath: string, data: string) {
+    return fs.writeFileSync(path.resolve(this.destABS, relativePath),
+          data);
+  }
+  // -----------------------
+
+  mergeDep(pJsons: Array<Object>,
+  excludePkgs?: Array<string>): Dep {
+    const deps = pJsons.map(pj => pj.dependencies);
+    return _mergeDep(deps, excludePkgs);
+  }
+
+  mergeDevDep(pJsons: Array<Object>,
+  excludePkgs?: Array<string>): Dep {
+    const deps = pJsons.map(pj => pj.devDependencies);
+    return _mergeDep(deps, excludePkgs);
+  }
+
+}
+
+type Dep = {  [key: string]: string, };
+// merge dependencies & devDependencies
+function _mergeDep(deps: Array<Dep>, excludePkgs?: Array<string>): Dep {
+  const exclude = arrayToMap(excludePkgs);
+  const newDep = {};
+  for (const dep of deps) {
+    for (var key in dep) {
+      if (exclude.get(key) != true) {
+        if (newDep.hasOwnProperty(key) == false) {
+          newDep[key] = dep[key];
+        } else {
+          if ( semver.gt(dep[key], newDep[key]) ) {
+            newDep[key] = dep[key];
+          }
+        }
+      }
+    }
+  }
+  return newDep;
+}
 
 export type RcObjectFile = {
   stat?: 'dir'|'file', // default is 'dir'
@@ -67,25 +106,20 @@ type ResolvedSimpleFile = {
   destABS: string,
   srcABS: string,
 };
-
-
 type ResolvedFile = ResolvedDirFile|ResolvedSimpleFile;
 
-
 export class PkgCopy {
-  destRoot:string;
-  srcRoot:string;
-  constructor(destPath:string, srcPath: string ) {
+  destRoot: string;
+  srcRoot: string;
+  constructor(destPath: string, srcPath: string ) {
     this.destRoot = destPath;
     this.srcRoot = srcPath;
   }
-
 
   _resolveSubFile(dirFile: ResolvedDirFile, subFileName: string): ResolvedFile {
     let stat: 'file'|'copy'|'mkdir' = 'file';
     let relativeDestDir = 'parent';
     let _dest = subFileName;
-    let _src = subFileName;
     const srcABS = path.resolve(dirFile.srcABS, subFileName);
     let destDir = dirFile.destABS;
     const subFile: RcFile = dirFile.files[subFileName];
@@ -93,9 +127,9 @@ export class PkgCopy {
     console.log(subFileName);
     switch (typeof subFile) {
       case 'object':
-        relativeDestDir = subFile.relativeDir? subFile.relativeDir: relativeDestDir;
-        _dest =  subFile.dest? subFile.dest : _dest;
-        destDir = (relativeDestDir == 'parent')? dirFile.destABS: this.destRoot;
+        relativeDestDir = subFile.relativeDir ? subFile.relativeDir : relativeDestDir;
+        _dest =  subFile.dest ? subFile.dest : _dest;
+        destDir = (relativeDestDir == 'parent') ? dirFile.destABS : this.destRoot;
         const files = subFile.files; // to make flow pass.
         if ( files != null) {
           return {
@@ -103,8 +137,8 @@ export class PkgCopy {
             destABS: path.resolve(destDir, _dest),
             srcABS: srcABS,
             files: files,
-          }
-        };
+          };
+        }
         break;
       case 'string': // rename
         _dest = subFile;
@@ -128,7 +162,6 @@ export class PkgCopy {
   }
 
   _copyDir(dirFile: ResolvedDirFile ) {
-
     for (const fileName in dirFile.files) {
       const subFile: ResolvedFile = this._resolveSubFile(dirFile, fileName);
       switch (subFile.stat) {
@@ -145,12 +178,11 @@ export class PkgCopy {
           break;
         default:
           throw new Error(`innerPkg.stat should not be ${subFile.stat}`);
-        }
+      }
     }
   }
 
   copy(opts: CopyConfig) {
-
     const topLevelDir: ResolvedDirFile = {
       stat: 'dir',
       destABS: this.destRoot,
@@ -166,16 +198,21 @@ export class PkgCopy {
         throw new Error('top level must be dir');
       }
     }
+    const done = opts.script; // for flow
+    if ( done != null ) {
+      const arg = new AppInfo(this.destRoot,
+        this.srcRoot, path.basename(this.destRoot));
+      done(arg);
+    }
   }
 // class end
 }
 
 
-
 function fsCopy(dst: string, src: string) {
 //  console.log(`src:(${src}) =>  (${dst})`);
   const srcStat = fs.statSync(src);
-  if( srcStat.isFile() ){
+  if ( srcStat.isFile() ) {
     fsMkdir(path.dirname(dst));
     const srcF = fs.createReadStream(src);
     srcF.pipe( fs.createWriteStream(dst));
@@ -193,7 +230,7 @@ function fsCopy(dst: string, src: string) {
 
 function fsMkdir(dstABS: string): boolean {
   if (fs.existsSync(dstABS)) {
-    if( fs.statSync(dstABS).isDirectory()) {
+    if ( fs.statSync(dstABS).isDirectory()) {
       return true;
     } else {
       throw new RepoFileError(`"${dstABS}", should be a dir`);
@@ -206,13 +243,16 @@ function fsMkdir(dstABS: string): boolean {
 }
 
 
-function getAllPath(pathABS: string): Array<string> {
-  const paths: string[] = [];
-  let curPath = pathABS;
-  while (curPath != '/') {
-    curPath = path.dirname(curPath);
-    paths.push(curPath);
+
+function arrayToMap(ar?: Array<string>): Map<string, boolean> {
+  const map:Map<string, boolean> = new Map();
+  if (ar == null) { return map; }
+  for (const v of ar) {
+    map.set(v, true);
   }
-//  paths.reverse();
-  return paths;
+  return map;
 }
+
+export type {
+  AppInfo,
+};

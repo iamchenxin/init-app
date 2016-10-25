@@ -23,7 +23,7 @@ type CopyOptions = {
 
 type PackageOptions = {
   'rename'?: string,
-  files?:{
+  files?: {
     // string = copy and rename!
     // 1 ,2 ,4 = COPY, IGNORE , CHECK
     //
@@ -32,7 +32,7 @@ type PackageOptions = {
 };
 type PackageOptions_re = {
   'rename'?: string,
-  files?:{
+  files?: {
     // string = copy and rename!
     // 1 ,2 ,4 = COPY, IGNORE , CHECK
     //
@@ -40,7 +40,7 @@ type PackageOptions_re = {
   },
 };
 
-async function copy(dstPath:string, srcRepo: DefaultRepo) {
+async function copy(dstPath: string, srcRepo: DefaultRepo) {
   const git = new Git(srcRepo.url);
   const repoPath = await git.getRepo();
 
@@ -53,7 +53,7 @@ async function copy(dstPath:string, srcRepo: DefaultRepo) {
   }
 }
 
-function copyByOption(dstPath:string, srcPath: string,pkg: PackageOptions) {
+function copyByOption(dstPath: string, srcPath: string, pkg: PackageOptions) {
   for (const fileName in pkg.files) {
     let dstName:string = fileName;
     const fileNameValue = pkg.files[fileName];
@@ -65,15 +65,15 @@ function copyByOption(dstPath:string, srcPath: string,pkg: PackageOptions) {
           subDst = path.resolve(dstPath, fileNameValue.rename);
         }
         // make an empty dir when 'data': {}
-        if( fs.exists(subDst) == false) {
+        if ( fs.exists(subDst) == false) {
           fs.mkdirSync(subDst);
         }
         return copyByOption(subDst, subSrc, fileNameValue); // node6.8 has tail call
       case 'string': // rename then pass to copy('number')
         dstName = fileNameValue;
       case 'number': // COPY|CHECK|IGNORE
-        const stat = (typeof fileNameValue == 'number')?fileNameValue: COPY;
-        if( COPY == stat) {
+        const stat = (typeof fileNameValue == 'number') ? fileNameValue : COPY;
+        if ( COPY == stat) {
           fsCopy( path.resolve(dstPath, dstName),
             path.resolve(srcPath, fileName));
         }
@@ -88,11 +88,11 @@ function copyByOption(dstPath:string, srcPath: string,pkg: PackageOptions) {
 
 function fsCopy(dst, src) {
   const stat = fs.statSync(src);
-  if( stat.isFile() ){
+  if ( stat.isFile() ) {
     const srcF = fs.createReadStream(src);
     srcF.pipe( fs.createWriteStream(dst));
   } else if (stat.isDirectory()) {
-    if( fs.existsSync(dst) == false) {
+    if ( fs.existsSync(dst) == false) {
       fs.mkdirSync(dst);
     }
     fs.readdirSync(src).map( subPath => {

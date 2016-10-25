@@ -1,13 +1,14 @@
 // @flow
-import type { CopyConfig  } from '../util/repofile.js';
+import type { CopyConfig, AppInfo  } from '../util/repofile.js';
 
 const COPY = 1;
 const MKDIR = 2;
 const CHECK = 4;
 
-const options: CopyConfig = {
+const copy: CopyConfig = {
   gitUrl: 'https://github.com/iamchenxin/init-app.git',
   commandName: 'lerna-conf',
+  script: newPackage,
   files: {
     './packages/config-relay-graphql':{
       dest:'.',
@@ -15,7 +16,7 @@ const options: CopyConfig = {
         '.babelrc': '.babelrc',
         '.flowconfig': COPY,
         'gulpfile.js': COPY,
-        'package.json': COPY,
+  //      'package.json': COPY,
         'config': COPY,
         'data': MKDIR,
         'src': COPY,
@@ -27,75 +28,87 @@ const options: CopyConfig = {
         '.eslintignore': COPY,
         '.eslintrc.js': COPY,
         '.gitignore': COPY,
-        'package.json': COPY,
+  //      'package.json': COPY,
       },
     },
-  }
-}
+  },
+};
+
+const update: CopyConfig = {
+  gitUrl: 'https://github.com/iamchenxin/init-app.git',
+  commandName: 'lerna-conf',
+  script: updatePackage,
+  files: {
+    './packages/config-relay-graphql':{
+      dest:'.',
+      'files': {
+        '.babelrc': '.babelrc',
+        '.flowconfig': COPY,
+        'gulpfile.js': COPY,
+  //      'package.json': COPY,
+      },
+    },
+
+    '.': {
+      'files': {
+        '.eslintignore': COPY,
+        '.eslintrc.js': COPY,
+        '.gitignore': COPY,
+  //      'package.json': COPY,
+      },
+    },
+  },
+};
 
 
-const fs = require('fs');
-function buildPackage(packageJson, packageJson_ad, appName) {
+function newPackage(appInfo: AppInfo) {
   try {
-    const p1 = JSON.parse( fs.readFileSync(packageJson) ) ;
-    const p_ad = JSON.parse( fs.readFileSync(packageJson_ad) ) ;
 
+    const pJson = appInfo.packageJsonSrc('./packages/config-relay-graphql/package.json');
+    const pJson_ad = appInfo.packageJsonSrc('./package.json');
 
-    const devDep_dv = p_ad.devDependencies;
-    delete devDep_dv['lerna'];
+    const newDep = appInfo.mergeDep([pJson, pJson_ad]);
+    const newDevDep = appInfo.mergeDevDep([pJson, pJson_ad], ['lerna']);
 
-    const newDevDep = Object.assign({}, p1.devDependencies);
-    for (const key in devDep_dv) {
-      if (newDevDep.hasOwnProperty(key)==false) {
-        newDevDep[key] = devDep_dv[key];
-      }
-    }
+    const newPkg = {
+      name: appInfo.appName,
+      version: '0.1.0',
+      'description': 'none',
+      'author': getUser(),
+      main: pJson.main ? pJson.main : '',
+      files: pJson.files ? pJson.files : [],
+      scripts: pJson.scripts ? pJson.scripts : {},
+      dependencies: newDep,
+      devDependencies: newDevDep,
+    };
 
-    const pkg = {
-      name: appName,
-      version: "0.1.0",
-      "description": "none",
-      "author": getUser(),
-      main: p1.main?p1.main:'',
-      files: p1.files?p1.files:[],
-      scripts: p1.scripts?p1.scripts:{},
-  //    dependencies:
-    }
+    appInfo.writeToDest('package.json', JSON.stringify(newPkg, null, 2));
 
   } catch (e) {
-      throw new Error('buildPackage wrong');
+    throw new Error('buildPackage wrong');
   }
-
 }
 
-type Dep = {
-  [key: string]: mixed,
-};
-// merge dependencies & devDependencies
-function mergeDep(deps: Array<Dep>, excludePkgs: Array<string>) {
-  const exclude = arrayToMap(excludePkgs);
-  const newDep = {};
-  for (const dep of deps) {
-    for (var key in dep) {
-      if(exclude.get(key)!=true){
-        newDep[key] = dep[key];
-      }
-    }
-  }
-  return newDep;
+function updatePackage(appInfo: AppInfo) {
+  const srcJson = appInfo.packageJsonSrc('./packages/config-relay-graphql/package.json');
+  const srcJson_ad = appInfo.packageJsonSrc('./package.json');
+
+  const appJson = appInfo.packageJsonDest('./package.json');
+  appJson.dependencies = appInfo.mergeDep([srcJson, srcJson_ad, appJson]);
+  appJson.devDependencies = appInfo.mergeDevDep( [srcJson, srcJson_ad, appJson],
+    ['lerna']);
+
+  appInfo.writeToDest('./package.json', JSON.stringify(appJson, null, 2));
 }
 
-function arrayToMap(ar: Array<string>): Map<string, boolean> {
-  const map:Map<string, boolean> = new Map();
-  for (const v of ar) {
-    map.set(v, true);
-  }
-  return map;
-}
+
 
 function getUser() {
   return process.env['USER'];
 }
 
 
-module.exports = options;
+module.exports = {
+  copy,
+  update,
+};

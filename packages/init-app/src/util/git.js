@@ -10,9 +10,9 @@ type GetRepoOptions = {
 };
 
 class Git {
-  url:string;
-  cacheDir:string;
-  repoName:string;
+  url: string;
+  cacheDir: string;
+  repoName: string;
   constructor(url: string) {
     this.url = url;
     this.cacheDir = rcFile.cacheDir;
@@ -36,7 +36,7 @@ class Git {
           `url: ${this.url}\n` +
           `cache: ${cache}\n` +
           `repo: ${repoName}\n` +
-          `can not find repo in cache`);
+          'can not find repo in cache');
       });
     });
   }
@@ -48,7 +48,7 @@ class Git {
   }
 
   _checkoutTagBr(repoPath: string, tagOrBr: string): Promise<string> {
-    const subArg = isTag(tagOrBr)? tagOrBr : `origin/${tagOrBr}`;
+    const subArg = isTag(tagOrBr) ? tagOrBr : `origin/${tagOrBr}`;
     process.stdout.write(`Checkout ${subArg}\n`);
     return spawn('git', ['checkout', subArg], {cwd: repoPath})
     .then( _ => repoPath );
@@ -75,7 +75,7 @@ class Git {
         return this._checkoutTagBr(repoPath, tagOrBr);
       }
       return this._checkoutTagBr(repoPath, 'master');
-    })
+    });
   }
 
 }
@@ -98,16 +98,16 @@ function getRepoName(gitUrl: string): string {
 function findRepoInDir(repoName: string, dirPath: string): Promise<string|null> {
   return new Promise(function(resolve, reject) {
     fs.readdir(dirPath, (err, files) => {
-      if(err){
+      if (err) {
         return reject(err);
       }
       const rt = files.filter( file => file == repoName);
-      if ( 1 === rt.length ){
+      if ( 1 === rt.length ) {
         return resolve(path.resolve(dirPath, repoName));
       } else {
         return resolve(null);
       }
-    })
+    });
   });
 }
 
