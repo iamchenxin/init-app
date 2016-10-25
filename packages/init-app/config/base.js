@@ -24,7 +24,7 @@ var nodePaths = (process.env.NODE_PATH || '')
   .filter(Boolean)
   .map(resolveApp);
 
-const home = process.env.HOME? process.env.HOME: process.cwd();
+const home = process.env.HOME ? process.env.HOME : process.cwd();
 
 const paths = {
   packageJson: resolveApp('package.json'),
@@ -39,10 +39,6 @@ const paths = {
   rcDir: path.resolve(home, './.init-app'),
   rcFile: path.resolve(home, './.init-app/iapprc.js'),
   rcFileTpl: resolveApp('./data/iapprc.js'),
-
-  resolveToHome(relativePath /*: string*/) {
-    return path.resolve(home,relativePath);
-  },
 };
 
 module.exports = {

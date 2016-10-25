@@ -1,12 +1,13 @@
 // @flow
+/* eslint-disable */
 
-import { spawn} from '../util/child-process.js';
+import { spawn} from '../utils/child-process.js';
 const stream = require('stream');
 const child = require('child_process');
-import { Git } from '../util/git.js';
-import { copy } from '../util/copybyoptions.js';
+import { Git } from '../component/git.js';
+
 const relayRepo = require('../data/relay-graphql.js');
-import { PkgCopy } from '../util/repofile.js';
+import { RepoCopy } from '../component/repofile.js';
 const path = require('path');
 
 function ts() {
@@ -66,7 +67,7 @@ async function ts6() {
   );
   const repo = await git.getRepo();
   console.log(repo);
-  const cp = new PkgCopy(path.resolve(destDir, appName), repo);
+  const cp = new RepoCopy(path.resolve(destDir, appName), repo);
   cp.copy(relayRepo.copy);
 }
 ts6();

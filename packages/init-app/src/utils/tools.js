@@ -3,6 +3,8 @@
 **/
 const fs = require('fs-extra');
 const util = require('util');
+const base = require('../../config/base.js');
+const path = require('path');
 
 function log() {
   console.log.apply(null, arguments);
@@ -31,12 +33,13 @@ function pathMustbeExist(path: string, eMsg?: string): string {
   return path;
 }
 
-function mustbe<T>(result: T, shouldBe: T, eMsg?: string): T {
-  if ( result != shouldBe ) {
-    const defaultMsg = `result(${format(result)}) shoulde be (${format(shouldBe)})`;
-    throw new Error(eMsg ? eMsg : defaultMsg);
+function mustbe<T>(value: mixed, shouldBe: T, err?: Error): T {
+  if ( value != shouldBe ) {
+    const defaultErr = new Error(
+      `result(${format(value)}) shoulde be (${format(shouldBe)})`);
+    throw err ? err : defaultErr;
   }
-  return result;
+  return shouldBe;
 }
 
 function mapFromKeys(keys?: Array<string>): {[key: string]: number} {
@@ -50,6 +53,26 @@ function mapFromKeys(keys?: Array<string>): {[key: string]: number} {
   return ob;
 }
 
+function replaceAt(str: string, repStr: string, idx: number): string {
+  return str.substring(0, idx) + repStr + str.substring(idx + 1, str.length);
+}
+
+function resolveToHome(relativePath: string): string {
+  mustbe(relativePath.length > 0, true);
+  if ( '~' == relativePath[0]) {
+    relativePath = replaceAt(relativePath, '.', 0);
+  }
+  return path.resolve(base.paths.home, relativePath);
+}
+
+function absolutePath(rPath: string): string {
+  mustbe(rPath.length > 0, true);
+  if ( '~' == rPath[0] ) {
+    return resolveToHome(rPath);
+  }
+  return path.resolve(rPath);
+}
+
 export {
   log,
   format,
@@ -57,6 +80,8 @@ export {
   pathMustbeExist,
   mustbe,
   mapFromKeys,
+  absolutePath,
+  resolveToHome,
 };
 
 export type {

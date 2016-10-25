@@ -5,11 +5,11 @@ declare var it: Function;
 declare var expect: Function;
 
 import { getRepoName } from '../git.js';
-import {RepoFileError } from '../error.js';
+// import { RepoFileError } from '../../utils/error.js';
 
 
 describe('Test util functions', () => {
-  it('test getRepoName', () =>{
+  it('test getRepoName', () => {
 
     expectName('https://github.com/iamchenxin/flow-dynamic.git')
     .toEqual('flow-dynamic');

@@ -5,7 +5,13 @@
 const path = require('path');
 const fs = require('fs');
 const semver = require('semver');
-import {RepoFileError} from './error.js';
+import {RepoFileError} from '../utils/error.js';
+
+export type RepoFile = {
+  copy: CopyConfig,
+  update: CopyConfig,
+};
+
 export type CopyConfig = {
   gitUrl: string,
   commandName: string,
@@ -81,7 +87,7 @@ export type RcObjectFile = {
 };
 const COPY = 1;
 const MKDIR = 2;
-const CHECK = 4;
+//const CHECK = 4;
 type RcSimpleFile =
   1|2|4|  // 1 ,2 ,4 = COPY, MKDIR , CHECK
   string; // rename this file.
@@ -108,7 +114,7 @@ type ResolvedSimpleFile = {
 };
 type ResolvedFile = ResolvedDirFile|ResolvedSimpleFile;
 
-export class PkgCopy {
+export class RepoCopy {
   destRoot: string;
   srcRoot: string;
   constructor(destPath: string, srcPath: string ) {

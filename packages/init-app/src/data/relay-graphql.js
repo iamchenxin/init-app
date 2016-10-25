@@ -1,9 +1,9 @@
 // @flow
-import type { CopyConfig, AppInfo  } from '../util/repofile.js';
+import type { CopyConfig, AppInfo  } from '../component/repofile.js';
 
 const COPY = 1;
 const MKDIR = 2;
-const CHECK = 4;
+//const CHECK = 4;
 
 const copy: CopyConfig = {
   gitUrl: 'https://github.com/iamchenxin/init-app.git',
