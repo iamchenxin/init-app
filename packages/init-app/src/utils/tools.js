@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const util = require('util');
 const base = require('../../config/base.js');
 const path = require('path');
+import {RepoFileError} from './error.js';
 
 function log() {
   console.log.apply(null, arguments);
@@ -66,6 +67,15 @@ function mapFromKeys(keys?: Array<string>): {[key: string]: number} {
   return ob;
 }
 
+function arrayToMap(ar?: Array<string>): Map<string, boolean> {
+  const map:Map<string, boolean> = new Map();
+  if (ar == null) { return map; }
+  for (const v of ar) {
+    map.set(v, true);
+  }
+  return map;
+}
+
 function replaceAt(str: string, repStr: string, idx: number): string {
   return str.substring(0, idx) + repStr + str.substring(idx + 1, str.length);
 }
@@ -86,6 +96,40 @@ function absolutePath(rPath: string): string {
   return path.resolve(rPath);
 }
 
+function copyR(dst: string, src: string) {
+//  console.log(`src:(${src}) =>  (${dst})`);
+  const srcStat = fs.statSync(src);
+  if ( srcStat.isFile() ) {
+    mkdirR(path.dirname(dst));
+    const srcF = fs.createReadStream(src);
+    srcF.pipe( fs.createWriteStream(dst));
+  } else if (srcStat.isDirectory()) {
+
+    mkdirR(dst);
+    fs.readdirSync(src).map( subPath => {
+      copyR(path.resolve(dst, subPath), path.resolve(src, subPath));
+    });
+
+  } else {
+    throw new RepoFileError(`${dst} & ${src} should be File`);
+  }
+}
+
+function mkdirR(dstABS: string): boolean {
+  if (fs.existsSync(dstABS)) {
+    if ( fs.statSync(dstABS).isDirectory()) {
+      return true;
+    } else {
+      throw new RepoFileError(`"${dstABS}", should be a dir`);
+    }
+  }
+  const parent = path.dirname(dstABS);
+  mkdirR(parent);
+  fs.mkdirSync(dstABS);
+  return true;
+}
+
+
 export {
   log,
   warn,
@@ -95,8 +139,11 @@ export {
   mustbe,
   mustNot,
   mapFromKeys,
+  arrayToMap,
   absolutePath,
   resolveToHome,
+  copyR,
+  mkdirR,
 };
 
 export type {

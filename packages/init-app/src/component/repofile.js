@@ -5,7 +5,8 @@
 const path = require('path');
 const fs = require('fs');
 const semver = require('semver');
-import {RepoFileError} from '../utils/error.js';
+//import {RepoFileError} from '../utils/error.js';
+import { copyR, mkdirR, arrayToMap } from '../utils/tools.js';
 
 export type RepoFile = {
   copy: CopyConfig,
@@ -173,10 +174,10 @@ export class RepoCopy {
       switch (subFile.stat) {
         case 'file':
         case 'copy':
-          fsCopy( subFile.destABS, subFile.srcABS);
+          copyR( subFile.destABS, subFile.srcABS);
           break;
         case 'mkdir':
-          fsMkdir( subFile.destABS);
+          mkdirR( subFile.destABS);
           break;
         case 'dir':
           // should cast to tail call !
@@ -195,7 +196,7 @@ export class RepoCopy {
       srcABS: this.srcRoot,
       files: opts.files,
     };
-    fsMkdir(this.destRoot);
+    mkdirR(this.destRoot);
     for (var fileName in topLevelDir.files) {
       const topSubFile = this._resolveSubFile(topLevelDir, fileName);
       if (topSubFile.stat === 'dir') { // top level must be dir
@@ -212,51 +213,6 @@ export class RepoCopy {
     }
   }
 // class end
-}
-
-
-function fsCopy(dst: string, src: string) {
-//  console.log(`src:(${src}) =>  (${dst})`);
-  const srcStat = fs.statSync(src);
-  if ( srcStat.isFile() ) {
-    fsMkdir(path.dirname(dst));
-    const srcF = fs.createReadStream(src);
-    srcF.pipe( fs.createWriteStream(dst));
-  } else if (srcStat.isDirectory()) {
-
-    fsMkdir(dst);
-    fs.readdirSync(src).map( subPath => {
-      fsCopy(path.resolve(dst, subPath), path.resolve(src, subPath));
-    });
-
-  } else {
-    throw new Error('fsCopy should be File|Path');
-  }
-}
-
-function fsMkdir(dstABS: string): boolean {
-  if (fs.existsSync(dstABS)) {
-    if ( fs.statSync(dstABS).isDirectory()) {
-      return true;
-    } else {
-      throw new RepoFileError(`"${dstABS}", should be a dir`);
-    }
-  }
-  const parent = path.dirname(dstABS);
-  fsMkdir(parent);
-  fs.mkdirSync(dstABS);
-  return true;
-}
-
-
-
-function arrayToMap(ar?: Array<string>): Map<string, boolean> {
-  const map:Map<string, boolean> = new Map();
-  if (ar == null) { return map; }
-  for (const v of ar) {
-    map.set(v, true);
-  }
-  return map;
 }
 
 export type {
