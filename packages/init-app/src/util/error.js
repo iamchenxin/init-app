@@ -15,5 +15,5 @@ export class SpawnError extends Error {
   EXIT_CODE: number;
 }
 
-export class FileError extends Error {
+export class RepoFileError extends Error {
 }

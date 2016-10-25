@@ -59,7 +59,7 @@ function ts5() {
 const fs = require('fs');
 async function ts6() {
   const appName = 'hehe';
-  const destDir = '/home/iamchenxin/tmp/ts2';
+  const destDir = '/home/iamchenxin/tmp/ts88/app';
   const git = new Git(
     relayRepo.gitUrl,
     '/home/iamchenxin/tmp/cache',
@@ -67,7 +67,6 @@ async function ts6() {
   const repo = await git.getRepo();
   console.log(repo);
   const cp = new PkgCopy(path.resolve(destDir,appName), repo);
-//  fs.mkdirSync(path.resolve(destDir,appName));
   cp.copy(relayRepo);
 }
 ts6();

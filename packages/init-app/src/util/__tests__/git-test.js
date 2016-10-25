@@ -5,7 +5,7 @@ declare var it: Function;
 declare var expect: Function;
 
 import { getRepoName } from '../git.js';
-import {FileError } from '../error.js';
+import {RepoFileError } from '../error.js';
 
 
 describe('Test util functions', () => {

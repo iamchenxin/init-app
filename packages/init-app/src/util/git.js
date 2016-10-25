@@ -1,6 +1,6 @@
 // @flow
 import { spawn} from '../util/child-process.js';
-import {FileError } from './error.js';
+import {RepoFileError } from './error.js';
 const fs = require('fs');
 const path = require('path');
 const rcFile = require('./rcFile.js');
@@ -31,7 +31,7 @@ class Git {
         if (repoPath) {
           return repoPath;
         }
-        throw new FileError(
+        throw new RepoFileError(
           `After clone\n` +
           `url: ${this.url}\n` +
           `cache: ${cache}\n` +
@@ -90,7 +90,7 @@ function getRepoName(gitUrl: string): string {
   const reg = /\/([\w\-_]+?)(.git)?$/;
   const rt = gitUrl.match(reg);
   if ( null == rt ) {
-    throw new FileError(`(${gitUrl}) is not a valid git path`);
+    throw new RepoFileError(`(${gitUrl}) is not a valid git path`);
   }
   return rt[1];
 }
