@@ -25,7 +25,8 @@
     "jest": "NODE_ENV=test jest $@",
     "build": "gulp clean && gulp build ",
     "bnode": "NODE_ENV=dev babel-node",
-    "ts": "babel-node -- src/ts/ts.js"
+    "ts": "babel-node -- src/ts/ts.js",
+    "postinstall": "node lib/scripts/postinstall.js"
   },
   "bin": {
     "iapp": "./lib/index.js"
@@ -33,7 +34,6 @@
   "dependencies": {
     "flow-dynamic": "0.0.12",
     "fs-extra": "^0.30.0",
-    "nodegit": "^0.16.0",
     "semver": "^5.3.0",
     "yargs": "^6.0.0"
   },
