@@ -1,13 +1,8 @@
 /* @flow */
-/* global child_process$spawnOpts */
 import { SpawnError } from './error.js';
-
-import { promisify } from './promise.js';
-const colors = require('colors/safe');
+//import { promisify } from './promise.js';
+//const colors = require('colors/safe');
 const child = require('child_process');
-const stream = require('stream');
-
-const exec = promisify(child.exec);
 
 type OnData = (chunk: string) => void;
 
@@ -23,17 +18,17 @@ type SpawnOptions = {
 
 // git use readline to display compelex output,
 // seems readline will handle all of stdio. not sure how to listen it.
-// so  readline just -> 'inherit'. (just pass through)
+// so  readline set to -> 'inherit'. (just pass through)
 function spawn(
   command: string,
   args: Array<string>,
   opts: $Shape<SpawnOptions> = {},
 ) {
   // set default value for opts
-  opts.display = opts.display? opts.display: 'show';
+  opts.display = opts.display ? opts.display : 'show';
   //
   opts.stdio = 'ignore';
-  const onData = (typeof opts.display == 'function')? opts.display: null;
+  const onData = (typeof opts.display == 'function') ? opts.display : null;
 
   if (typeof opts.display == 'function') {
     opts.stdio = ['inherit', 'pipe', 'pipe'];
@@ -47,7 +42,7 @@ function spawn(
     const cproc = child.spawn(command, args, opts );
 
 // process data ..
-    if( onData != null) {
+    if ( onData != null) {
       cproc.stdout.on('data', chunk => onData(chunk.toString()) );
       cproc.stdout.on('end', () => {
     //    process.stdout.write(colors.yellow('finish\n'));
@@ -57,11 +52,11 @@ function spawn(
 //  process error
     let procErr:null|Error = null;
     let stderrMsg:string|null = null;
-    cproc.on('error', (error:Error) => {
+    cproc.on('error', (error: Error) => {
       procErr = error;
     });
 
-    if( cproc.stderr != null) {
+    if ( cproc.stderr != null) {
       cproc.stderr.on('data', chunk => {
         stderrMsg += chunk.toString();
       });
@@ -70,9 +65,9 @@ function spawn(
 //  reject & resolve
     cproc.on('close', (code, signal) => {
 
-      let errorMsg = procErr?
+      let errorMsg = procErr ?
         `Process: ${procErr.message}\n` : '';
-      errorMsg += stderrMsg?
+      errorMsg += stderrMsg ?
         `stderr: ${stderrMsg}\n` : '';
 
       if ( code != 0 )  {
@@ -84,8 +79,8 @@ function spawn(
           `Directory: ${opts.cwd || process.cwd()}`,
           `Error:\n${errorMsg}`,
         ].join('\n'));
-          err.EXIT_CODE = code;
-          reject(err);
+        err.EXIT_CODE = code;
+        reject(err);
       } else {
         resolve(code);
       }

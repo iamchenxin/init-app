@@ -1,4 +1,4 @@
-import { copyR, mkdirR, arrayToMap, log } from '../utils/tools.js';
+import { copyR, mkdirR, log} from '../utils/tools.js';
 const base = require('../../config/base.js');
 const fs = require('fs');
 const iapprc = require('../template/iapprc.js');
