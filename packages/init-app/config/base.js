@@ -38,7 +38,7 @@ const paths = {
   dst: resolveApp('lib'),
   rcDir: path.resolve(home, './.init-app'),
   rcFile: path.resolve(home, './.init-app/iapprc.js'),
-  rcFileTpl: resolveApp('./data/iapprc.js'),
+  rcFileTpl: resolveApp('./lib/template/iapprc.js'),
 };
 
 module.exports = {

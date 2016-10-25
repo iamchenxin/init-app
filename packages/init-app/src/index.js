@@ -28,9 +28,9 @@ function commandList() {
     },
     handler: function(argv) {
       console.log(`Init a new App(${argv.appName})`);
-      console.log(`With Package: ${argv.repo}`);
+      console.log(`With Package: ${argv.reponame}`);
       init(argv.appName, {
-        repoName: argv.repo,
+        repoName: argv.reponame,
       }).then( result => {
         console.dir(result);
       });
@@ -47,7 +47,7 @@ function commandList() {
     handler: function(argv) {
       console.log('update app config ...');
       update(argv.appDir, {
-        repoName: argv.repo,
+        repoName: argv.reponame,
       }).then( result => {
         console.dir(result);
       });
@@ -68,7 +68,7 @@ function commandList() {
 //    demand: true,
     type: 'string',
   })
-  .global('repo')
+  .global('reponame')
   .global('conf')
   .help()
   .alias('h', 'help')

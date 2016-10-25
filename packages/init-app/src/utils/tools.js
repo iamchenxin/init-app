@@ -96,6 +96,7 @@ function absolutePath(rPath: string): string {
   return path.resolve(rPath);
 }
 
+// ToDo: should allow copy file -> dir
 function copyR(dst: string, src: string) {
 //  console.log(`src:(${src}) =>  (${dst})`);
   const srcStat = fs.statSync(src);
