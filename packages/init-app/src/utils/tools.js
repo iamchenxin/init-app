@@ -10,6 +10,10 @@ function log() {
   console.log.apply(null, arguments);
 }
 
+function warn() {
+  console.warn.apply(null, arguments);
+}
+
 function format(v: mixed): string {
   return util.inspect(v, {depth: null});
 }
@@ -36,10 +40,19 @@ function pathMustbeExist(path: string, eMsg?: string): string {
 function mustbe<T>(value: mixed, shouldBe: T, err?: Error): T {
   if ( value != shouldBe ) {
     const defaultErr = new Error(
-      `result(${format(value)}) shoulde be (${format(shouldBe)})`);
+      `value(${format(value)}) shoulde be (${format(shouldBe)})`);
     throw err ? err : defaultErr;
   }
   return shouldBe;
+}
+
+function mustNot<T>(value: T, notBe: mixed, err?: Error): T {
+  if ( value == notBe ) {
+    const defaultErr = new Error(
+      `value(${format(value)}) most not be (${format(notBe)})`);
+    throw err ? err : defaultErr;
+  }
+  return value;
 }
 
 function mapFromKeys(keys?: Array<string>): {[key: string]: number} {
@@ -75,10 +88,12 @@ function absolutePath(rPath: string): string {
 
 export {
   log,
+  warn,
   format,
   print,
   pathMustbeExist,
   mustbe,
+  mustNot,
   mapFromKeys,
   absolutePath,
   resolveToHome,

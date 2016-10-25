@@ -3,7 +3,7 @@ import { spawn } from '../utils/child-process.js';
 import { RepoFileError } from '../utils/error.js';
 const fs = require('fs');
 const path = require('path');
-const rcFile = require('./rcFile.js');
+const rcFile = require('./rcfile.js');
 
 type GetRepoOptions = {
   tagOrBr?: string,

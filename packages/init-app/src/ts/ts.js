@@ -6,7 +6,7 @@ const stream = require('stream');
 const child = require('child_process');
 import { Git } from '../component/git.js';
 
-const relayRepo = require('../data/relay-graphql.js');
+const relayRepo = require('../repoconfs/relay-graphql.js');
 import { RepoCopy } from '../component/repofile.js';
 const path = require('path');
 

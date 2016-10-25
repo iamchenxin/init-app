@@ -5,6 +5,7 @@ import { pro } from 'flow-dynamic';
 
 type RcFile = {
   cacheDir: string,
+  extRepoConfs: string,
 };
 
 function getDefaultRc(rcPath): RcFile {
@@ -16,6 +17,7 @@ function getDefaultRc(rcPath): RcFile {
     // and use flow-dynamic to check the rc to a fixed type
     return {
       cacheDir: pro.isString(rc.cacheDir),
+      extRepoConfs: pro.isString(rc.extRepoConfs),
     };
   } catch (e) {
     throw new Error(`rcFile broken!\n ${e.message}`);
