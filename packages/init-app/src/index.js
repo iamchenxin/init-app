@@ -29,30 +29,36 @@ function commandList() {
     handler: function(argv) {
       console.log(`Init a new App(${argv.appName})`);
       console.log(`With Package: ${argv.reponame}`);
-      init(argv.appName, {
-        repoName: argv.reponame,
-      }).then( result => {
+      init(argv.appName, getArgs(argv))
+      .then( result => {
         console.dir(result);
       });
     },
   };
 
   const updateCMD = {
-    command: 'update <appDir>',
+    command: 'update <appPath>',
     describe: 'update the configs of an app by given git repo',
     builder: function(subYargs) {
-      return subYargs.usage('usage: $0 update <appDir>')
+      return subYargs.usage('usage: $0 update <appPath>')
       .demand(1);
     },
     handler: function(argv) {
       console.log('update app config ...');
-      update(argv.appDir, {
-        repoName: argv.reponame,
-      }).then( result => {
+      update(argv.appPath, getArgs(argv))
+      .then( result => {
         console.dir(result);
       });
     },
   };
+
+  function getArgs(argv) {
+    return {
+      repoName: argv.reponame,
+      confPath: argv.conf,
+      npminstall: argv.npminstall,
+    };
+  }
 
   yargs.command(initCMD).command(updateCMD)
   .option('reponame', {
@@ -62,14 +68,21 @@ function commandList() {
 //    demand: true,
     type: 'string',
   })
+  .global('reponame')
   .option('conf', {
     alias: 'c',
     describe: 'repo config file path, directly load by path',
 //    demand: true,
     type: 'string',
   })
-  .global('reponame')
   .global('conf')
+  .option('npminstall', {
+    alias: 'n',
+    describe: 'install all deps in package.json',
+    default: true,
+    type: 'boolean',
+  })
+  .global('npminstall')
   .help()
   .alias('h', 'help')
   .completion('completion')

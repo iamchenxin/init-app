@@ -1,7 +1,7 @@
 /* @flow
  *
 **/
-const fs = require('fs-extra');
+const fs = require('fs');
 const util = require('util');
 const base = require('../../config/base.js');
 const path = require('path');
@@ -102,8 +102,7 @@ function copyR(dst: string, src: string) {
   const srcStat = fs.statSync(src);
   if ( srcStat.isFile() ) {
     mkdirR(path.dirname(dst));
-    const srcF = fs.createReadStream(src);
-    srcF.pipe( fs.createWriteStream(dst));
+    _copyFile(dst, src);
   } else if (srcStat.isDirectory()) {
 
     mkdirR(dst);
@@ -114,6 +113,11 @@ function copyR(dst: string, src: string) {
   } else {
     throw new RepoFileError(`${dst} & ${src} should be File`);
   }
+}
+
+function _copyFile(destABS, srcABS) {
+  return fs.writeFileSync(destABS,
+    fs.readFileSync(srcABS));
 }
 
 function mkdirR(dstABS: string): boolean {

@@ -189,7 +189,7 @@ export class RepoCopy {
     }
   }
 
-  copy(opts: CopyConfig) {
+  async copy(opts: CopyConfig): Promise<void> {
     const topLevelDir: ResolvedDirFile = {
       stat: 'dir',
       destABS: this.destRoot,
@@ -209,8 +209,9 @@ export class RepoCopy {
     if ( done != null ) {
       const arg = new AppInfo(this.destRoot,
         this.srcRoot, path.basename(this.destRoot));
-      done(arg);
+      const rt = await done(arg);
     }
+    return;
   }
 // class end
 }

@@ -23,7 +23,7 @@ function spawn(
   command: string,
   args: Array<string>,
   opts: $Shape<SpawnOptions> = {},
-) {
+): Promise<number> {
   // set default value for opts
   opts.display = opts.display ? opts.display : 'show';
   //
