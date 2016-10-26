@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Make sure any symlinks in the project folder are resolved:
 const appDirectory = fs.realpathSync(process.cwd());
-function resolveApp(relativePath) {
+function resolveAppRoot(relativePath) {
   return path.resolve(appDirectory, relativePath);
 }
 
@@ -22,25 +22,26 @@ function resolveApp(relativePath) {
 var nodePaths = (process.env.NODE_PATH || '')
   .split(process.platform === 'win32' ? ';' : ':')
   .filter(Boolean)
-  .map(resolveApp);
+  .map(resolveAppRoot);
 
 const home = process.env.HOME ? process.env.HOME : process.cwd();
 
 const paths = {
-  packageJson: resolveApp('package.json'),
-  nodeModules: resolveApp('node_modules'),
-  ownNodeModules: resolveApp('node_modules'),
-  babelrc: resolveApp('.babelrc'),
+  packageJson: resolveAppRoot('package.json'),
+  nodeModules: resolveAppRoot('node_modules'),
+  ownNodeModules: resolveAppRoot('node_modules'),
+  babelrc: resolveAppRoot('.babelrc'),
   nodePaths: nodePaths,
   home: home,
   // ---
-  src: resolveApp('src'),
-  dst: resolveApp('lib'),
+  src: resolveAppRoot('src'),
+  dst: resolveAppRoot('lib'),
   rcDir: path.resolve(home, './.init-app'),
   rcFile: path.resolve(home, './.init-app/iapprc.js'),
-  rcFileTpl: resolveApp('./lib/template/iapprc.js'),
+  rcFileTpl: resolveAppRoot('./lib/template/iapprc.js'),
 };
 
 module.exports = {
   paths: paths,
+  resolveAppRoot: resolveAppRoot,
 };
