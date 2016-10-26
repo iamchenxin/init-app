@@ -16,11 +16,11 @@ export type RepoFile = {
 export type CopyConfig = {
   gitUrl: string,
   commandName: string,
-  script?: (appInfo: AppInfo) => void,
+  script?: (appTool: AppTool) => void,
   files: RcFiles,
 };
 
-class AppInfo {
+class AppTool {
   destABS: string;
   srcABS: string;
   appName: string;
@@ -207,9 +207,9 @@ export class RepoCopy {
     }
     const done = opts.script; // for flow
     if ( done != null ) {
-      const arg = new AppInfo(this.destRoot,
+      const arg = new AppTool(this.destRoot,
         this.srcRoot, path.basename(this.destRoot));
-      const rt = await done(arg);
+      await done(arg);
     }
     return;
   }
@@ -217,5 +217,5 @@ export class RepoCopy {
 }
 
 export type {
-  AppInfo,
+  AppTool,
 };

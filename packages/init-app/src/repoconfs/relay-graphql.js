@@ -1,5 +1,5 @@
 // @flow
-import type { CopyConfig, AppInfo  } from '../component/repofile.js';
+import type { CopyConfig, AppTool  } from '../component/repofile.js';
 
 const COPY = 1;
 const MKDIR = 2;
@@ -60,18 +60,17 @@ const update: CopyConfig = {
   },
 };
 
-
-function newPackage(appInfo: AppInfo) {
+function newPackage(appTool: AppTool) {
   try {
 
-    const pJson = appInfo.packageJsonSrc('./packages/config-relay-graphql/package.json');
-    const pJson_ad = appInfo.packageJsonSrc('./package.json');
+    const pJson = appTool.packageJsonSrc('./packages/config-relay-graphql/package.json');
+    const pJson_ad = appTool.packageJsonSrc('./package.json');
 
-    const newDep = appInfo.mergeDep([pJson, pJson_ad]);
-    const newDevDep = appInfo.mergeDevDep([pJson, pJson_ad], ['lerna']);
+    const newDep = appTool.mergeDep([pJson, pJson_ad]);
+    const newDevDep = appTool.mergeDevDep([pJson, pJson_ad], ['lerna']);
 
     const newPkg = {
-      name: appInfo.appName,
+      name: appTool.appName,
       version: '0.1.0',
       'description': 'none',
       'author': getUser(),
@@ -82,31 +81,28 @@ function newPackage(appInfo: AppInfo) {
       devDependencies: newDevDep,
     };
 
-    appInfo.writeToDest('package.json', JSON.stringify(newPkg, null, 2));
+    appTool.writeToDest('package.json', JSON.stringify(newPkg, null, 2));
 
   } catch (e) {
     throw new Error('buildPackage wrong');
   }
 }
 
-function updatePackage(appInfo: AppInfo) {
-  const srcJson = appInfo.packageJsonSrc('./packages/config-relay-graphql/package.json');
-  const srcJson_ad = appInfo.packageJsonSrc('./package.json');
+function updatePackage(appTool: AppTool) {
+  const srcJson = appTool.packageJsonSrc('./packages/config-relay-graphql/package.json');
+  const srcJson_ad = appTool.packageJsonSrc('./package.json');
 
-  const appJson = appInfo.packageJsonDest('./package.json');
-  appJson.dependencies = appInfo.mergeDep([srcJson, srcJson_ad, appJson]);
-  appJson.devDependencies = appInfo.mergeDevDep( [srcJson, srcJson_ad, appJson],
+  const appJson = appTool.packageJsonDest('./package.json');
+  appJson.dependencies = appTool.mergeDep([srcJson, srcJson_ad, appJson]);
+  appJson.devDependencies = appTool.mergeDevDep( [srcJson, srcJson_ad, appJson],
     ['lerna']);
 
-  appInfo.writeToDest('./package.json', JSON.stringify(appJson, null, 2));
+  appTool.writeToDest('./package.json', JSON.stringify(appJson, null, 2));
 }
-
-
 
 function getUser() {
   return process.env['USER'];
 }
-
 
 module.exports = {
   copy,
