@@ -1,6 +1,7 @@
 // @flow
-import { spawn } from '../utils/child-process.js';
+import { spawn, exec } from '../utils/child-process.js';
 import { RepoFileError } from '../utils/error.js';
+import { log, mustbe, print } from '../utils/tools.js';
 const fs = require('fs');
 const path = require('path');
 const rcFile = require('./rcfile.js');
@@ -13,10 +14,12 @@ class Git {
   url: string;
   cacheDir: string;
   repoName: string;
+  repoPath: ?string;
   constructor(url: string) {
     this.url = url;
     this.cacheDir = rcFile.cacheDir;
     this.repoName = getRepoName(this.url);
+    this.repoPath = null;
   }
 
   // return the repository' path
@@ -54,6 +57,31 @@ class Git {
     .then( _ => repoPath );
   }
 
+  _getRepoPath() {
+    if (this.repoPath) {
+      return this.repoPath;
+    }
+    log(`Repository(${this.repoName}) did not update yet, get repo from cache`);
+
+    const repoPath = path.resolve(this.cacheDir, this.repoName);
+    mustbe( fs.existsSync(repoPath) && fs.statSync(repoPath).isDirectory(),
+    true, new Error(`The cached repo(${repoPath}) do not exist`));
+    return repoPath;
+  }
+
+  _getHistoryFile(commit: string, filePath: string): Promise<string> {
+    return exec(`git show ${commit}:${filePath}`, {
+      cwd: this._getRepoPath(),
+      maxBuffer: 1024 * 1024,
+    })
+    .then( out => {
+      log('---eee-<<<<<<<<<<<---------');
+      print(out);
+    //  print(stderr);
+      return 'ok';
+    });
+  }
+
   // return the repository' path
   getRepo(option?: GetRepoOptions): Promise<string> {
     const repoName = this.repoName;
@@ -71,6 +99,7 @@ class Git {
       // keep update to the new version
       return this._fetch(repoPath);
     }).then( repoPath => {
+      this.repoPath = repoPath;
       if (tagOrBr) {
         return this._checkoutTagBr(repoPath, tagOrBr);
       }
