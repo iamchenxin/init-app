@@ -1,10 +1,10 @@
 /* @flow */
 import { SpawnError } from './error.js';
-//import { promisify } from './promise.js';
+import { promisify } from './promise.js';
 //const colors = require('colors/safe');
 const child = require('child_process');
 
-type OnData = (chunk: string) => void;
+type OnData = (chunk?: string) => void;
 
 type SpawnOptions = {
   cwd?: string,
@@ -13,10 +13,10 @@ type SpawnOptions = {
   detached?: boolean,
   uid?: number,
   gid?: number,
-  display?: 'ignore'|'show'|OnData,
+  onData?: 'ignore'|'show'|OnData,
 };
 
-// git use readline to display compelex output,
+// git use readline to onData compelex output,
 // seems readline will handle all of stdio. not sure how to listen it.
 // so  readline set to -> 'inherit'. (just pass through)
 function spawn(
@@ -25,14 +25,14 @@ function spawn(
   opts: $Shape<SpawnOptions> = {},
 ): Promise<number> {
   // set default value for opts
-  opts.display = opts.display ? opts.display : 'show';
+  opts.onData = opts.onData ? opts.onData : 'show';
   //
   opts.stdio = 'ignore';
-  const onData = (typeof opts.display == 'function') ? opts.display : null;
+  const onData = (typeof opts.onData == 'function') ? opts.onData : null;
 
-  if (typeof opts.display == 'function') {
+  if (typeof opts.onData == 'function') {
     opts.stdio = ['inherit', 'pipe', 'pipe'];
-  } else if (opts.display == 'show') {
+  } else if (opts.onData == 'show') {
     opts.stdio = ['inherit', 'inherit', 'inherit'];
   }
 
@@ -45,6 +45,7 @@ function spawn(
     if ( onData != null) {
       cproc.stdout.on('data', chunk => onData(chunk.toString()) );
       cproc.stdout.on('end', () => {
+        onData(); // empty onData, means data end.
     //    process.stdout.write(colors.yellow('finish\n'));
       });
     }
@@ -88,6 +89,9 @@ function spawn(
   });
 }
 
+const exec = promisify(child.exec);
+
 export {
   spawn,
+  exec,
 };
