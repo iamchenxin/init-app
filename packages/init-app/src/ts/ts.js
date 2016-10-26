@@ -54,9 +54,12 @@ function ts4() {
   repoP.then( path => console.log(path));
 }
 
+
+
 function ts5() {
 //  copy('/home/iamchenxin/tmp/ts', relayRepo);
 }
+
 const fs = require('fs');
 async function ts6() {
   const appName = 'man';
@@ -70,4 +73,15 @@ async function ts6() {
   const cp = new RepoCopy(path.resolve(destDir, appName), repo);
   cp.copy(relayRepo.copy);
 }
-ts6();
+
+function ts7() {
+  const git = new Git(
+    'https://github.com/iamchenxin/ww.git',
+    '/home/iamchenxin/tmp/cache',
+  );
+  const repoP = git.getRepo({tagOrBr: 'v0.0.1'});
+  repoP.then( path => {
+    git._getHistoryFile('5161ba2e3', 'README.md');
+  });
+}
+ts7();

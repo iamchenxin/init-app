@@ -33,6 +33,7 @@ const paths = {
   babelrc: resolveAppRoot('.babelrc'),
   nodePaths: nodePaths,
   home: home,
+  appRoot: appDirectory,
   // ---
   src: resolveAppRoot('src'),
   dst: resolveAppRoot('lib'),
@@ -43,5 +44,4 @@ const paths = {
 
 module.exports = {
   paths: paths,
-  resolveAppRoot: resolveAppRoot,
 };
