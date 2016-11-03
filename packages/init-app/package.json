@@ -28,6 +28,9 @@
     "ts": "babel-node -- src/ts/ts.js",
     "postinstall": "node lib/scripts/postinstall.js"
   },
+  "jest": {
+    "verbose": true
+  },
   "bin": {
     "iapp": "./lib/index.js"
   },
