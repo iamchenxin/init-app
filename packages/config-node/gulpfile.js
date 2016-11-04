@@ -27,7 +27,8 @@ gulp.task('clean', function(done) {
   done();
 });
 
-gulp.task('build', gulp.parallel('lib', 'flow', function(done) {
+gulp.task('build', gulp.series('clean', gulp.parallel('lib', 'flow'),
+function(done) {
   const rsrc = path.relative(__dirname, paths.src);
   const rdst = path.relative(__dirname, paths.dst);
   gutil.log('Compile Javascript Files...');

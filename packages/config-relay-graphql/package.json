@@ -32,12 +32,12 @@
     "tagged-literals": "0.0.10"
   },
   "devDependencies": {
-    "init-scripts": "^0.0.2",
     "babel-core": "^6.18.0",
-    "init-preset-node": "^6.8.2",
-    "gulp": "^3.9.1",
+    "gulp": "github:gulpjs/gulp#4.0",
     "gulp-babel": "^6.1.2",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.6.0"
+    "gulp-sourcemaps": "^1.6.0",
+    "init-preset-node": "^6.8.2",
+    "init-scripts": "^0.0.2"
   }
 }

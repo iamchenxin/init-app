@@ -23,7 +23,7 @@
     "test": "npm run jest",
     "lint": "node_modules/.bin/eslint .",
     "jest": "NODE_ENV=test jest $@",
-    "build": "gulp clean && gulp build ",
+    "build": "gulp build",
     "bnode": "NODE_ENV=dev babel-node",
     "ts": "babel-node -- src/ts/ts.js",
     "postinstall": "node lib/scripts/postinstall.js"
