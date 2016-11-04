@@ -35,17 +35,24 @@ class AppTool {
     this.appName = appName;
     this.gitlocal = gitlocal;
   }
-  packageJsonSrc(relativePath: string): Object {
+  getUser() {
+    return process.env['USER'];
+  }
+  jsonSrc(relativePath: string): Object {
     return JSON.parse( fs.readFileSync(
       path.resolve(this.srcABS, relativePath), 'utf8') );
   }
-  packageJsonDest(relativePath: string): Object {
+  jsonDest(relativePath: string): Object {
     return JSON.parse( fs.readFileSync(
       path.resolve(this.destABS, relativePath), 'utf8') );
   }
   writeToDest(relativePath: string, data: string) {
     return fs.writeFileSync(path.resolve(this.destABS, relativePath),
           data);
+  }
+  writeJsonToDest(relativePath: string, data: Object) {
+    return fs.writeFileSync(path.resolve(this.destABS, relativePath),
+          JSON.stringify(data, null, 2));
   }
   // -----------------------
 
@@ -61,6 +68,46 @@ class AppTool {
     return _mergeDep(deps, excludePkgs);
   }
 
+  // -------------- compelex functions
+  mergePackageJson(
+    jsonSrcPaths: Array<string>,
+    jsonDestPath: string,
+    depExcludes: Array<string>,
+    devDepExcludes: Array<string>
+  ) {
+    const jsons = jsonSrcPaths.map( jpath => this.jsonSrc(jpath));
+    const newDep = this.mergeDep(jsons, depExcludes);
+    const newDevDep = this.mergeDevDep(jsons, devDepExcludes);
+    const mainJson = jsons[0];
+
+    const newPkg = {
+      name: this.appName,
+      version: '0.1.0',
+      'description': 'none',
+      'author': this.getUser(),
+      main: mainJson.main ? mainJson.main : '',
+      files: mainJson.files ? mainJson.files : [],
+      scripts: mainJson.scripts ? mainJson.scripts : {},
+      dependencies: newDep,
+      devDependencies: newDevDep,
+    };
+
+    this.writeJsonToDest(jsonDestPath, newPkg);
+  }
+
+  updatePackageJson(
+    jsonSrcPaths: Array<string>,
+    jsonDestPath: string,
+    depExcludes: Array<string>,
+    devDepExcludes: Array<string>
+  ) {
+    const srcJsons = jsonSrcPaths.map( jpath => this.jsonSrc(jpath));
+    const destJson = this.jsonDest(jsonDestPath);
+    destJson.dependencies = this.mergeDep([...srcJsons, destJson], depExcludes);
+    destJson.devDependencies = this.mergeDevDep([...srcJsons, destJson],
+      devDepExcludes);
+    this.writeJsonToDest(jsonDestPath, destJson);
+  }
 }
 
 type Dep = {  [key: string]: string, };

@@ -61,8 +61,8 @@ const update: RepoConfig = {
 function newPackage(appTool: AppTool) {
   try {
 
-    const pJson = appTool.packageJsonSrc('./packages/config-node/package.json');
-    const pJson_ad = appTool.packageJsonSrc('./package.json');
+    const pJson = appTool.jsonSrc('./packages/config-node/package.json');
+    const pJson_ad = appTool.jsonSrc('./package.json');
 
     const newDep = appTool.mergeDep([pJson, pJson_ad]);
     const newDevDep = appTool.mergeDevDep([pJson, pJson_ad], ['lerna']);
@@ -87,15 +87,15 @@ function newPackage(appTool: AppTool) {
 }
 
 function updatePackage(appTool: AppTool) {
-  const srcJson = appTool.packageJsonSrc('./packages/cconfig-node/package.json');
-  const srcJson_ad = appTool.packageJsonSrc('./package.json');
+  const srcJson = appTool.jsonSrc('./packages/cconfig-node/package.json');
+  const srcJson_ad = appTool.jsonSrc('./package.json');
 
-  const appJson = appTool.packageJsonDest('./package.json');
+  const appJson = appTool.jsonDest('./package.json');
   appJson.dependencies = appTool.mergeDep([srcJson, srcJson_ad, appJson]);
   appJson.devDependencies = appTool.mergeDevDep( [srcJson, srcJson_ad, appJson],
     ['lerna']);
 
-  appTool.writeToDest('./package.json', JSON.stringify(appJson, null, 2));
+  appTool.writeJsonToDest('./package.json', appJson);
 }
 
 function getUser() {
