@@ -4,8 +4,9 @@
 //import { Git } from '../component/git.js';
 import { repoCopy } from '../component/repofile.js';
 import { requireConf } from '../component/confloader.js';
-import { absolutePath } from '../utils/tools.js';
+import { absolutePath, mustbe } from '../utils/tools.js';
 import { spawn } from '../utils/child-process.js';
+const fs = require('fs');
 //const path = require('path');
 
 import type { RepoConfig } from '../component/repofile.js';
@@ -27,7 +28,9 @@ async function _npmInstall(_appPath: string): Promise<number> {
 }
 
 async function init(_appPath: string, conf: InitConfig): Promise<string> {
-  if ( conf.repoName == null) { throw new Error('ee'); }
+  mustbe( fs.existsSync(_appPath), false, new Error('the path already exist, ' +
+  'please choose an other app name'));
+  if ( conf.repoName == null) { throw new Error('Must have a Repo Name'); }
   const confFile = requireConf(conf.repoName); // if
   const rt = await _exec(_appPath, confFile.copy);
   if ( conf.npminstall ) {
