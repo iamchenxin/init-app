@@ -89,7 +89,7 @@ function spawn(
   });
 }
 
-type ExecOutPut = string|Buffer|null;
+type ExecOutPut = string|Buffer;
 type Exec = (command: string, options?: $Shape<child_process$execOpts>)
   => Promise<[ExecOutPut, ExecOutPut]>;
 const exec:Exec = promisify(child.exec);
@@ -97,4 +97,9 @@ const exec:Exec = promisify(child.exec);
 export {
   spawn,
   exec,
+};
+
+export type {
+  Exec,
+  ExecOutPut,
 };

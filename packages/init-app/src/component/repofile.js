@@ -7,13 +7,15 @@ const fs = require('fs');
 const semver = require('semver');
 //import {RepoFileError} from '../utils/error.js';
 import { copyR, mkdirR, arrayToMap } from '../utils/tools.js';
+import { getRepo } from './git.js';
+import type { GitLocal } from './git.js';
 
 export type RepoFile = {
-  copy: CopyConfig,
-  update: CopyConfig,
+  copy: RepoConfig,
+  update: RepoConfig,
 };
 
-export type CopyConfig = {
+export type RepoConfig = {
   gitUrl: string,
   commandName: string,
   script?: (appTool: AppTool) => void,
@@ -24,12 +26,14 @@ class AppTool {
   destABS: string;
   srcABS: string;
   appName: string;
+  gitlocal: GitLocal;
   mergeDep: (pJsons: Array<Object>, excludePkgs?: Array<string>) => Dep;
   mergeDevDep: (pJsons: Array<Object>, excludePkgs?: Array<string>) => Dep;
-  constructor(destABS: string, srcABS: string, appName: string) {
+  constructor(destABS: string, appName: string, gitlocal: GitLocal) {
     this.destABS = destABS;
-    this.srcABS = srcABS;
+    this.srcABS = gitlocal.repoPath;
     this.appName = appName;
+    this.gitlocal = gitlocal;
   }
   packageJsonSrc(relativePath: string): Object {
     return JSON.parse( fs.readFileSync(
@@ -115,7 +119,7 @@ type ResolvedSimpleFile = {
 };
 type ResolvedFile = ResolvedDirFile|ResolvedSimpleFile;
 
-export class RepoCopy {
+class RepoCopy {
   destRoot: string;
   srcRoot: string;
   constructor(destPath: string, srcPath: string ) {
@@ -189,31 +193,34 @@ export class RepoCopy {
     }
   }
 
-  async copy(opts: CopyConfig): Promise<void> {
-    const topLevelDir: ResolvedDirFile = {
-      stat: 'dir',
-      destABS: this.destRoot,
-      srcABS: this.srcRoot,
-      files: opts.files,
-    };
-    mkdirR(this.destRoot);
-    for (var fileName in topLevelDir.files) {
-      const topSubFile = this._resolveSubFile(topLevelDir, fileName);
-      if (topSubFile.stat === 'dir') { // top level must be dir
-        this._copyDir(topSubFile);
-      } else {
-        throw new Error('top level must be a dir');
-      }
-    }
-    const done = opts.script; // for flow
-    if ( done != null ) {
-      const arg = new AppTool(this.destRoot,
-        this.srcRoot, path.basename(this.destRoot));
-      await done(arg);
-    }
-    return;
-  }
 // class end
+}
+
+export async function repoCopy(destABS: string, opts: RepoConfig): Promise<void> {
+  const gitlocal = await getRepo(opts.gitUrl);
+  const rCopy = new RepoCopy(destABS, gitlocal.repoPath);
+  const topLevelDir: ResolvedDirFile = {
+    stat: 'dir',
+    destABS: destABS,
+    srcABS: gitlocal.repoPath,
+    files: opts.files,
+  };
+  mkdirR(destABS);
+  for (var fileName in topLevelDir.files) {
+    const topSubFile = rCopy._resolveSubFile(topLevelDir, fileName);
+    if (topSubFile.stat === 'dir') { // top level must be dir
+      rCopy._copyDir(topSubFile);
+    } else {
+      throw new Error('top level must be a dir');
+    }
+  }
+  const userScript = opts.script; // for flow
+  if ( userScript != null ) {
+    const arg = new AppTool(destABS,
+      path.basename(destABS), gitlocal);
+    await userScript(arg);
+  }
+  return;
 }
 
 export type {

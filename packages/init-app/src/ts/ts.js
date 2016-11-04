@@ -4,10 +4,10 @@
 import { spawn} from '../utils/child-process.js';
 const stream = require('stream');
 const child = require('child_process');
-import { Git } from '../component/git.js';
+//import { Git } from '../component/git.js';
 
 const relayRepo = require('../repoconfs/relay-graphql.js');
-import { RepoCopy } from '../component/repofile.js';
+//import { copy } from '../component/repofile.js';
 const path = require('path');
 
 function ts() {
@@ -45,43 +45,43 @@ function ts3() {
 //  child.spawn('ls',['-a'],{stdio:'inherit'});
 }
 
-function ts4() {
-  const git = new Git(
-    'https://github.com/iamchenxin/ww.git',
-    '/home/iamchenxin/tmp/cache',
-  );
-  const repoP = git.getRepo({tagOrBr: 'v0.0.1'});
-  repoP.then( path => console.log(path));
-}
-
-
-
-function ts5() {
-//  copy('/home/iamchenxin/tmp/ts', relayRepo);
-}
-
-const fs = require('fs');
-async function ts6() {
-  const appName = 'man';
-  const destDir = '/home/iamchenxin/tmp/ts88';
-  const git = new Git(
-    relayRepo.copy.gitUrl,
-    '/home/iamchenxin/tmp/cache',
-  );
-  const repo = await git.getRepo();
-  console.log(repo);
-  const cp = new RepoCopy(path.resolve(destDir, appName), repo);
-  cp.copy(relayRepo.copy);
-}
-
-function ts7() {
-  const git = new Git(
-    'https://github.com/iamchenxin/ww.git',
-    '/home/iamchenxin/tmp/cache',
-  );
-  const repoP = git.getRepo({tagOrBr: 'v0.0.1'});
-  repoP.then( path => {
-    git._getHistoryFile('5161ba2e3', 'README.md');
-  });
-}
-ts7();
+// function ts4() {
+//   const git = new Git(
+//     'https://github.com/iamchenxin/ww.git',
+//     '/home/iamchenxin/tmp/cache',
+//   );
+//   const repoP = git.getRepo({tagOrBr: 'v0.0.1'});
+//   repoP.then( path => console.log(path));
+// }
+//
+//
+//
+// function ts5() {
+// //  copy('/home/iamchenxin/tmp/ts', relayRepo);
+// }
+//
+// const fs = require('fs');
+// async function ts6() {
+//   const appName = 'man';
+//   const destDir = '/home/iamchenxin/tmp/ts88';
+//   const git = new Git(
+//     relayRepo.copy.gitUrl,
+//     '/home/iamchenxin/tmp/cache',
+//   );
+//   const repo = await git.getRepo();
+//   console.log(repo);
+//   const cp = new RepoCopy(path.resolve(destDir, appName), repo);
+//   cp.copy(relayRepo.copy);
+// }
+//
+// function ts7() {
+//   const git = new Git(
+//     'https://github.com/iamchenxin/ww.git',
+//     '/home/iamchenxin/tmp/cache',
+//   );
+//   const repoP = git.getRepo({tagOrBr: 'v0.0.1'});
+//   repoP.then( path => {
+//     git._getHistoryFile('5161ba2e3', 'README.md');
+//   });
+// }
+// ts7();

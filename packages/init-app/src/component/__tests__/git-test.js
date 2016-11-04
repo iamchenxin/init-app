@@ -6,9 +6,9 @@ declare var expect: Function;
 jest.mock('../../../config/base.js');
 jest.mock('../rcfile.js');
 
-import { getRepoName, Git } from '../git.js';
-const base = require('../../../config/base.js');
-const rcFile = require('../rcfile.js');
+import { getRepoName, getRepo } from '../git.js';
+//const base = require('../../../config/base.js');
+//const rcFile = require('../rcfile.js');
 // import { RepoFileError } from '../../utils/error.js';
 
 
@@ -31,14 +31,20 @@ describe('Test util functions', () => {
   });
 });
 
-describe('Test mock', () => {
-  it('aaa', () => {
-    const git = new Git(
-      'https://github.com/iamchenxin/ww.git',
-    );
-    const repoP = git.getRepo({tagOrBr: 'v0.0.1'});
-    repoP.then( path => {
-      git._getHistoryFile('5161ba2e3', 'README.md');
-    });
+describe('Test ~~', () => {
+  // it('aaa', () => {
+  //   const git = new Git(
+  //     'https://github.com/iamchenxin/ww.git',
+  //   );
+  //   const repoP = git.getRepo({tagOrBr: 'v0.0.1'});
+  //   repoP.then( path => {
+  //     return git._getHistoryFile('5161ba2e3', 'README.md');
+  //   }).then( rt => console.log(rt) );
+  // });
+  it('bbb', () => {
+    return getRepo('https://github.com/iamchenxin/ww.git', {tag: 'v0.0.1'})
+    .then( gitlocal => {
+      return gitlocal._getHistoryFile('5161ba2e3', 'README.md');
+    }).then( rt => console.log(rt) );
   });
 });

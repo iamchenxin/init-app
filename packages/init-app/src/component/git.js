@@ -1,53 +1,26 @@
 // @flow
 import { spawn, exec } from '../utils/child-process.js';
+//import type { Exec, ExecOutPut } from '../utils/child-process.js';
 import { RepoFileError } from '../utils/error.js';
-import { log, mustbe, print } from '../utils/tools.js';
+import { log, mustbe } from '../utils/tools.js';
 const fs = require('fs');
 const path = require('path');
 const rcFile = require('./rcfile.js');
 
 type GetRepoOptions = {
-  tagOrBr?: string,
+  tag?: string,
 };
 
 class Git {
   url: string;
   cacheDir: string;
   repoName: string;
-  repoPath: ?string;
-  constructor(url: string) {
+  repoPath: string;
+  constructor(url: string, repoName: string, repoPath: string, cacheDir: string) {
     this.url = url;
-    this.cacheDir = rcFile.cacheDir;
-    this.repoName = getRepoName(this.url);
-    this.repoPath = null;
-  }
-
-  // return the repository' path
-  _clone(): Promise<string> {
-    const cache = this.cacheDir;
-    return spawn('git', ['clone', this.url,
-    path.resolve(this.cacheDir, this.repoName)])
-    .then( _ => {
-      const repoName = this.repoName;
-      return findRepoInDir(repoName, cache)
-      .then( repoPath => {
-        if (repoPath) {
-          return repoPath;
-        }
-        throw new RepoFileError(
-          `After clone\n` +
-          `url: ${this.url}\n` +
-          `cache: ${cache}\n` +
-          `repo: ${repoName}\n` +
-          'can not find repo in cache');
-      });
-    });
-  }
-
-  _fetch(repoPath: string): Promise<string> {
-    console.log('Fetch');
-    return spawn('git', ['fetch', 'origin'], {cwd: repoPath})
-    .then( _ => repoPath );
+    this.cacheDir = cacheDir;
+    this.repoName = repoName;
+    this.repoPath = repoPath;
   }
 
   _checkoutTagBr(repoPath: string, tagOrBr: string): Promise<string> {
@@ -70,43 +43,64 @@ class Git {
   }
 
   _getHistoryFile(commit: string, filePath: string): Promise<string> {
+    log(` cwd: ${this._getRepoPath()}`);
     return exec(`git show ${commit}:${filePath}`, {
       cwd: this._getRepoPath(),
       maxBuffer: 1024 * 1024,
-    })
-    .then( out => {
-      log('---eee-<<<<<<<<<<<---------');
-      print(out);
-    //  print(stderr);
-      return 'ok';
+    }).then( ([stdout, stderr]) => {
+      if (stderr.length > 0) {
+        throw new Error( stderr );
+      }
+      if ( stdout instanceof Buffer) {
+        return stdout.toString();
+      }
+      return stdout;
     });
   }
+
+}
+
+async function getRepo(url: string, option?: GetRepoOptions): Promise<Git> {
+  const cache = rcFile.cacheDir;
+  const repoName = getRepoName(url);
+  const tagOrBranch = ( option && option.tag ) ? option.tag : 'master';
+
+  let localPath: string|null = await findRepoInDir(repoName, cache);
+  if (null == localPath) {
+    localPath = await _clone();
+  } else {
+    await _fetch(localPath);
+  }
+
+  const gitlocal = new Git(url, repoName, localPath, cache);
+  gitlocal._checkoutTagBr(localPath, tagOrBranch);
+  return gitlocal;
 
   // return the repository' path
-  getRepo(option?: GetRepoOptions): Promise<string> {
-    const repoName = this.repoName;
-    const cache = this.cacheDir;
-    let tagOrBr: null|string = null;
-    if ( option && option.tagOrBr ) {
-      tagOrBr = option.tagOrBr;
-    }
-
-    return findRepoInDir(repoName, cache)
-    .then( repoPath => {
-      if ( null == repoPath) {
-        return this._clone();
-      }
-      // keep update to the new version
-      return this._fetch(repoPath);
-    }).then( repoPath => {
-      this.repoPath = repoPath;
-      if (tagOrBr) {
-        return this._checkoutTagBr(repoPath, tagOrBr);
-      }
-      return this._checkoutTagBr(repoPath, 'master');
+  function _clone(): Promise<string> {
+    return spawn('git', ['clone', url,
+    path.resolve(cache, repoName)])
+    .then( _ => {
+      return findRepoInDir(repoName, cache)
+      .then( repoPath => {
+        if (repoPath) {
+          return repoPath;
+        }
+        throw new RepoFileError(
+          `After clone\n` +
+          `url: ${url}\n` +
+          `cache: ${cache}\n` +
+          `repo: ${repoName}\n` +
+          'can not find repo in cache');
+      });
     });
   }
 
+  function _fetch(repoPath: string): Promise<string> {
+    console.log('Fetch');
+    return spawn('git', ['fetch', 'origin'], {cwd: repoPath})
+    .then( _ => repoPath );
+  }
 }
 
 function isTag(tagOrBr: string): boolean {
@@ -142,5 +136,9 @@ function findRepoInDir(repoName: string, dirPath: string): Promise<string|null> 
 
 export {
   getRepoName,
-  Git,
+  getRepo,
+};
+
+export type {
+  Git as GitLocal,
 };

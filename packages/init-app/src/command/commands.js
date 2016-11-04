@@ -1,14 +1,14 @@
 /* @flow
 */
 
-import { Git } from '../component/git.js';
-import { RepoCopy } from '../component/repofile.js';
+//import { Git } from '../component/git.js';
+import { repoCopy } from '../component/repofile.js';
 import { requireConf } from '../component/confloader.js';
 import { absolutePath } from '../utils/tools.js';
 import { spawn } from '../utils/child-process.js';
 //const path = require('path');
 
-import type { CopyConfig } from '../component/repofile.js';
+import type { RepoConfig } from '../component/repofile.js';
 
 type InitConfig = {
   repoName?: string,
@@ -16,12 +16,9 @@ type InitConfig = {
   npminstall?: boolean,
 };
 
-async function _exec(_appPath: string, cpConf: CopyConfig): Promise<string> {
+async function _exec(_appPath: string, cpConf: RepoConfig): Promise<string> {
   const destPath = absolutePath(_appPath);
-  const git = new Git(cpConf.gitUrl);
-  const repo = await git.getRepo();
-  const cp = new RepoCopy(destPath, repo);
-  await cp.copy(cpConf);
+  await repoCopy(destPath, cpConf);
   return destPath;
 }
 

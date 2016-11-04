@@ -1,11 +1,11 @@
 // @flow
-import type { CopyConfig, AppTool  } from '../component/repofile.js';
+import type { RepoConfig, AppTool  } from '../component/repofile.js';
 
 const COPY = 1;
 const MKDIR = 2;
 //const CHECK = 4;
 
-const copy: CopyConfig = {
+const copy: RepoConfig = {
   gitUrl: 'https://github.com/iamchenxin/init-app.git',
   commandName: 'lerna-conf',
   script: newPackage,
@@ -34,7 +34,7 @@ const copy: CopyConfig = {
   },
 };
 
-const update: CopyConfig = {
+const update: RepoConfig = {
   gitUrl: 'https://github.com/iamchenxin/init-app.git',
   commandName: 'lerna-conf',
   script: updatePackage,
