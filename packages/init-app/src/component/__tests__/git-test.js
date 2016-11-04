@@ -2,6 +2,7 @@
 declare var jest: Function;
 declare var describe: Function;
 declare var it: Function;
+declare var xit: Function;
 declare var expect: Function;
 jest.mock('../../../config/base.js');
 jest.mock('../rcfile.js');
@@ -41,7 +42,7 @@ describe('Test ~~', () => {
   //     return git._getHistoryFile('5161ba2e3', 'README.md');
   //   }).then( rt => console.log(rt) );
   // });
-  it('bbb', () => {
+  xit('bbb', () => {
     return getRepo('https://github.com/iamchenxin/ww.git', {tag: 'v0.0.1'})
     .then( gitlocal => {
       return gitlocal._getHistoryFile('5161ba2e3', 'README.md');

@@ -52,14 +52,14 @@ function getConfNames(): Array<string> {
 function requireConf(repoName: string): RepoFile {
   const confs = getConfs();
   const confPath = confs.get(repoName);
-  mustNot(confPath, null);
+  mustNot(null, confPath);
   // $FlowFixMe Flow do not allow dynamic require
   const mod:any = require(confPath);
   return mod;
 }
 
 function loadConf(confPath: string): RepoFile {
-  mustNot(confPath, null);
+  mustNot(null, confPath);
   // $FlowFixMe Flow do not allow dynamic require
   const mod:any = require(confPath);
   return mod;

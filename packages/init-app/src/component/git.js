@@ -37,8 +37,9 @@ class Git {
     log(`Repository(${this.repoName}) did not update yet, get repo from cache`);
 
     const repoPath = path.resolve(this.cacheDir, this.repoName);
-    mustbe( fs.existsSync(repoPath) && fs.statSync(repoPath).isDirectory(),
-    true, new Error(`The cached repo(${repoPath}) do not exist`));
+    mustbe(true,
+      fs.existsSync(repoPath) && fs.statSync(repoPath).isDirectory(),
+      new Error(`The cached repo(${repoPath}) do not exist`));
     return repoPath;
   }
 

@@ -34,24 +34,36 @@ function pathMustbeExist(path: string, eMsg?: string): string {
     const defaultMsg = `${path} do not exist!`;
     throw new Error(eMsg ? eMsg : defaultMsg);
   }
-  mustbe(fs.existsSync(path), true);
+  mustbe(true, fs.existsSync(path));
   return path;
 }
 
-function mustbe<T>(value: mixed, shouldBe: T, err?: Error): T {
+function mustbe<T>(shouldBe: T, value: mixed, errMsg?: Error|string): T {
   if ( value != shouldBe ) {
-    const defaultErr = new Error(
+    let err = new Error(
       `value(${format(value)}) shoulde be (${format(shouldBe)})`);
-    throw err ? err : defaultErr;
+    if ( typeof errMsg == 'string') {
+      err = new Error(errMsg);
+    }
+    if ( errMsg instanceof Error) {
+      err = errMsg;
+    }
+    throw err;
   }
   return shouldBe;
 }
 
-function mustNot<T>(value: T, notBe: mixed, err?: Error): T {
+function mustNot<T>(notBe: mixed, value: T, errMsg?: Error|string): T {
   if ( value == notBe ) {
-    const defaultErr = new Error(
+    let err = new Error(
       `value(${format(value)}) most not be (${format(notBe)})`);
-    throw err ? err : defaultErr;
+    if ( typeof errMsg == 'string') {
+      err = new Error(errMsg);
+    }
+    if ( errMsg instanceof Error) {
+      err = errMsg;
+    }
+    throw err;
   }
   return value;
 }

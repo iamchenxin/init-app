@@ -28,7 +28,7 @@ async function _npmInstall(_appPath: string): Promise<number> {
 }
 
 async function init(_appPath: string, conf: InitConfig): Promise<string> {
-  mustbe( fs.existsSync(_appPath), false, new Error('the path already exist, ' +
+  mustbe(false, fs.existsSync(_appPath), new Error('the path already exist, ' +
   'please choose an other app name'));
   if ( conf.repoName == null) { throw new Error('Must have a Repo Name'); }
   const confFile = requireConf(conf.repoName); // if
