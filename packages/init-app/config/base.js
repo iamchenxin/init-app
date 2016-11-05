@@ -42,6 +42,28 @@ const paths = {
   rcFileTpl: resolveAppRoot('./lib/template/iapprc.js'),
 };
 
+// test config.
+const testDir_mock = path.resolve(paths.appRoot, 'tpjest');
+function toTestDir(relativePath) {
+  return path.resolve(testDir_mock, relativePath);
+}
+const rcDir_mock = toTestDir('./.init-app');
+const rcFile_mock = toTestDir('./.init-app/iapprc.js');
+const test_mock = {
+  base:{
+    testDir: testDir_mock,
+    rcDir: rcDir_mock,
+    rcFile: rcFile_mock,
+  },
+  rcfile: {
+    cacheDir: path.resolve(rcDir_mock, 'cache'),
+    extRepoConfs: path.resolve(rcDir_mock, 'repoconfs'),
+    singleRepo: 'init-ts',
+    multiRepo: 'relay-graphql',
+  }
+};
+
 module.exports = {
   paths: paths,
+  test_mock: test_mock,
 };

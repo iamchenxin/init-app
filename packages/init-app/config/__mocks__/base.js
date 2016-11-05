@@ -1,19 +1,12 @@
 'use strict';
 
 const real_base = require.requireActual('../base.js');
-const path = require.requireActual('path');
 
-const appRoot = real_base.paths.appRoot;
+const base_mock = real_base.test_mock.base;
 
-const testDir = path.resolve(appRoot, 'tpjest');
-
-function toTestDir(relativePath) {
-  return path.resolve(testDir, relativePath);
-}
-
-// add and modify some fields
-real_base.paths.testDir = testDir;
-real_base.paths.rcDir = toTestDir('./.init-app');
-real_base.paths.rcFile = toTestDir('./.init-app/iapprc.js');
+// copy pre defined mock to paths.
+real_base.paths.testDir = base_mock.testDir;
+real_base.paths.rcDir = base_mock.rcDir;
+real_base.paths.rcFile = base_mock.rcFile;
 
 module.exports = real_base;
