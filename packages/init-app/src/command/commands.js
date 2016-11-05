@@ -4,8 +4,9 @@
 //import { Git } from '../component/git.js';
 import { repoCopy } from '../component/repofile.js';
 import { requireConf } from '../component/confloader.js';
-import { absolutePath, mustbe } from '../utils/tools.js';
+import { absolutePath, mustbe, mustNot } from '../utils/tools.js';
 import { spawn } from '../utils/child-process.js';
+import { pro } from 'flow-dynamic';
 const fs = require('fs');
 //const path = require('path');
 
@@ -17,9 +18,10 @@ type InitConfig = {
   npminstall?: boolean,
 };
 
-async function _exec(_appPath: string, cpConf: RepoConfig): Promise<string> {
+async function _exec(_appPath: string, cpConf: RepoConfig,
+confName: string): Promise<string> {
   const destPath = absolutePath(_appPath);
-  await repoCopy(destPath, cpConf);
+  await repoCopy(destPath, cpConf, confName);
   return destPath;
 }
 
@@ -30,9 +32,9 @@ async function _npmInstall(_appPath: string): Promise<number> {
 async function init(_appPath: string, conf: InitConfig): Promise<string> {
   mustbe(false, fs.existsSync(_appPath), new Error('the path already exist, ' +
   'please choose an other app name'));
-  if ( conf.repoName == null) { throw new Error('Must have a Repo Name'); }
-  const confFile = requireConf(conf.repoName); // if
-  const rt = await _exec(_appPath, confFile.copy);
+  const repoName = pro.isString(conf.repoName, 'Command init: Must have a Repo Name');
+  const confFile = requireConf(repoName); // if
+  const rt = await _exec(_appPath, confFile.copy, repoName);
   if ( conf.npminstall ) {
     _npmInstall(_appPath);
   }
@@ -41,8 +43,9 @@ async function init(_appPath: string, conf: InitConfig): Promise<string> {
 
 async function update(_appPath: string, conf: InitConfig): Promise<string> {
   if ( conf.repoName == null) { throw new Error('ee'); }
-  const confFile = requireConf(conf.repoName); // if
-  const rt = await _exec(_appPath, confFile.update);
+  const repoName = pro.isString(conf.repoName, 'Command init: Must have a Repo Name');
+  const confFile = requireConf(repoName); // if
+  const rt = await _exec(_appPath, confFile.update, repoName);
   if ( conf.npminstall ) {
     _npmInstall(_appPath);
   }

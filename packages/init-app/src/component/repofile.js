@@ -6,9 +6,24 @@ const path = require('path');
 const fs = require('fs');
 const semver = require('semver');
 //import {RepoFileError} from '../utils/error.js';
-import { copyR, mkdirR, arrayToMap } from '../utils/tools.js';
+import { copyR, mkdirR, arrayToMap, mustNot } from '../utils/tools.js';
 import { getRepo } from './git.js';
 import type { GitLocal } from './git.js';
+import { pro } from 'flow-dynamic';
+
+
+function propsMinus(A: Object, B: Object): Object {
+  const minusAB = {};
+  for (const key in A) {
+    if (B.hasOwnProperty(key) == false) {
+      minusAB[key] = A[key];
+    }
+  }
+  return minusAB;
+}
+function propsUnion(objs: Array<Object>): Object {
+  return Object.assign({}, ...objs);
+}
 
 export type RepoFile = {
   copy: RepoConfig,
@@ -22,17 +37,26 @@ export type RepoConfig = {
   files: RcFiles,
 };
 
+type AppInfo = {
+  tag: string|null,
+  commit: string,
+  confname: string
+};
+
 class AppTool {
   destABS: string;
   srcABS: string;
   appName: string;
+  confName: string
   gitlocal: GitLocal;
   mergeDep: (pJsons: Array<Object>, excludePkgs?: Array<string>) => Dep;
   mergeDevDep: (pJsons: Array<Object>, excludePkgs?: Array<string>) => Dep;
-  constructor(destABS: string, appName: string, gitlocal: GitLocal) {
+  constructor(destABS: string, appName: string, confName: string,
+  gitlocal: GitLocal) {
     this.destABS = destABS;
     this.srcABS = gitlocal.repoPath;
     this.appName = appName;
+    this.confName = confName;
     this.gitlocal = gitlocal;
   }
   getUser() {
@@ -54,6 +78,38 @@ class AppTool {
     return fs.writeFileSync(path.resolve(this.destABS, relativePath),
           JSON.stringify(data, null, 2));
   }
+  buildAppInfo() {
+    mustNot(null, this.gitlocal.commit, 'gitlocal.commit should not be null');
+    return {
+      tag: this.gitlocal.tag,
+      commit: this.gitlocal.commit,
+      confname: this.confName,
+    };
+  }
+  readAppInfo(pJson: Object): AppInfo {
+    const nullString = pro.nullable(pro.isString);
+    const isString = pro.isString;
+    const info = pJson.iappinfo;
+    return {
+      tag: nullString(info.tag),
+      commit: isString(info.commit),
+      confname: isString(info.confname),
+    };
+  }
+  createPackageJson(srcJson: Object): Object {
+    return {
+      name: this.appName,
+      version: '0.1.0',
+      'description': 'none',
+      'author': this.getUser(),
+      main: srcJson.main ? srcJson.main : '',
+      files: srcJson.files ? srcJson.files : [],
+      scripts: srcJson.scripts ? srcJson.scripts : {},
+      dependencies: srcJson.dependencies,
+      devDependencies: srcJson.devDependencies,
+      iappinfo: this.buildAppInfo(),
+    };
+  }
   // -----------------------
 
   mergeDep(pJsons: Array<Object>,
@@ -68,6 +124,8 @@ class AppTool {
     return _mergeDep(deps, excludePkgs);
   }
 
+
+
   // -------------- compelex functions
   mergePackageJson(
     jsonSrcPaths: Array<string>,
@@ -79,23 +137,13 @@ class AppTool {
     const newDep = this.mergeDep(jsons, depExcludes);
     const newDevDep = this.mergeDevDep(jsons, devDepExcludes);
     const mainJson = jsons[0];
-
-    const newPkg = {
-      name: this.appName,
-      version: '0.1.0',
-      'description': 'none',
-      'author': this.getUser(),
-      main: mainJson.main ? mainJson.main : '',
-      files: mainJson.files ? mainJson.files : [],
-      scripts: mainJson.scripts ? mainJson.scripts : {},
-      dependencies: newDep,
-      devDependencies: newDevDep,
-    };
-
+    mainJson.dependencies = newDep;
+    mainJson.devDependencies = newDevDep;
+    const newPkg = this.createPackageJson(mainJson);
     this.writeJsonToDest(jsonDestPath, newPkg);
   }
 
-  updatePackageJson(
+  async updatePackageJson(
     jsonSrcPaths: Array<string>,
     jsonDestPath: string,
     depExcludes: Array<string>,
@@ -103,10 +151,32 @@ class AppTool {
   ) {
     const srcJsons = jsonSrcPaths.map( jpath => this.jsonSrc(jpath));
     const destJson = this.jsonDest(jsonDestPath);
-    destJson.dependencies = this.mergeDep([...srcJsons, destJson], depExcludes);
+    const oldInfo = this.readAppInfo(destJson);
+    const oldSrcJsons_ =  jsonSrcPaths.map( jpath => {
+      return this.gitlocal._getHistoryFile(oldInfo.commit, jpath)
+      .then( str => JSON.parse(str));
+    });
+    const oldSrcJsons = await Promise.all(oldSrcJsons_);
+
+    const depToRemove = getRemovePkgs(oldSrcJsons, srcJsons, 'dependencies');
+    const devDepToRm = getRemovePkgs(oldSrcJsons, srcJsons, 'devDependencies');
+
+
+    destJson.dependencies = this.mergeDep([...srcJsons, destJson],
+      [...depExcludes, ...depToRemove]);
     destJson.devDependencies = this.mergeDevDep([...srcJsons, destJson],
-      devDepExcludes);
+      [...devDepExcludes, ...devDepToRm]);
+    destJson.iappinfo = this.buildAppInfo();
     this.writeJsonToDest(jsonDestPath, destJson);
+
+    function getRemovePkgs(oldJsons: Object[], newJsons: Object[],
+    arg: 'dependencies'|'devDependencies'): Array<string> {
+      const unUsed = oldJsons.map( (oldj, index) => {
+        return propsMinus(oldj[arg], newJsons[index][arg]);
+      });
+      const toRemove = propsUnion(unUsed);
+      return Object.keys(toRemove);
+    }
   }
 }
 
@@ -243,7 +313,8 @@ class RepoCopy {
 // class end
 }
 
-export async function repoCopy(destABS: string, opts: RepoConfig): Promise<void> {
+export async function repoCopy(destABS: string, opts: RepoConfig,
+confName: string): Promise<void> {
   const gitlocal = await getRepo(opts.gitUrl);
   const rCopy = new RepoCopy(destABS, gitlocal.repoPath);
   const topLevelDir: ResolvedDirFile = {
@@ -264,7 +335,7 @@ export async function repoCopy(destABS: string, opts: RepoConfig): Promise<void>
   const userScript = opts.script; // for flow
   if ( userScript != null ) {
     const arg = new AppTool(destABS,
-      path.basename(destABS), gitlocal);
+      path.basename(destABS), confName, gitlocal);
     await userScript(arg);
   }
   return;

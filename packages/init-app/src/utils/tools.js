@@ -53,7 +53,7 @@ function mustbe<T>(shouldBe: T, value: mixed, errMsg?: Error|string): T {
   return shouldBe;
 }
 
-function mustNot<T>(notBe: mixed, value: T, errMsg?: Error|string): T {
+function mustNot<T, N>(notBe: N, value: T|N, errMsg?: Error|string): T {
   if ( value == notBe ) {
     let err = new Error(
       `value(${format(value)}) most not be (${format(notBe)})`);
@@ -65,7 +65,7 @@ function mustNot<T>(notBe: mixed, value: T, errMsg?: Error|string): T {
     }
     throw err;
   }
-  return value;
+  return (value: any);
 }
 
 function mapFromKeys(keys?: Array<string>): {[key: string]: number} {

@@ -2,7 +2,7 @@
 import { spawn, exec } from '../utils/child-process.js';
 //import type { Exec, ExecOutPut } from '../utils/child-process.js';
 import { RepoFileError } from '../utils/error.js';
-import { log, mustbe } from '../utils/tools.js';
+import { log, mustbe, mustNot, format } from '../utils/tools.js';
 const fs = require('fs');
 const path = require('path');
 const rcFile = require('./rcfile.js');
@@ -11,23 +11,73 @@ type GetRepoOptions = {
   tag?: string,
 };
 
+type GitLog = {
+  commit: string,
+  Author: string,
+  Date: string,
+  message: string,
+};
+
+function parseGitLog(msgStr: string|Buffer): GitLog {
+  msgStr = (msgStr instanceof Buffer) ? msgStr.toString() : msgStr;
+  const msgs = msgStr.split('\n').filter(m => m.length > 0);
+  mustbe(4, msgs.length, `GitLog: unknown format.\n ${format(msgs)}`);
+  const commit = mustNot(null,
+    msgs[0].match(/^commit[\W]+(\w+)/),
+    `GitLog: can not find commit.\n ${format(msgs)}`
+  )[1];
+  const Author = mustNot(null,
+    msgs[1].match(/^Author[\W]+(\w+)[ ]*(<[\w@\.]+>)?$/),
+    `GitLog: can not find Author.\n ${format(msgs)}`
+  )[1];
+  const date = mustNot(null,
+    msgs[2].match(/^Date[\W]+(\w+[^\t\v\n]+)/),
+    `GitLog: can not find Date.\n ${format(msgs)}`
+  )[1];
+  const message = mustNot(null,
+    msgs[3],
+    `GitLog: These is not commit message. ${format(msgs)}`
+  ).trim();
+
+  const logMsg = {
+    commit: commit,
+    Author: Author,
+    Date: date,
+    message: message,
+  };
+  return logMsg;
+}
+
 class Git {
   url: string;
   cacheDir: string;
   repoName: string;
   repoPath: string;
+  tag: ?string;
+  commit: ?string;
   constructor(url: string, repoName: string, repoPath: string, cacheDir: string) {
     this.url = url;
     this.cacheDir = cacheDir;
     this.repoName = repoName;
     this.repoPath = repoPath;
+    this.tag = null;
+    this.commit = null;
   }
 
-  _checkoutTagBr(repoPath: string, tagOrBr: string): Promise<string> {
-    const subArg = isTag(tagOrBr) ? tagOrBr : `origin/${tagOrBr}`;
-    process.stdout.write(`Checkout ${subArg}\n`);
-    return spawn('git', ['checkout', subArg], {cwd: repoPath})
-    .then( _ => repoPath );
+  async _checkoutTagBr(tagOrBr: string): Promise<string> {
+    let subArg = `origin/${tagOrBr}`;
+    if ( isTag(tagOrBr) ) {
+      subArg = tagOrBr;
+      this.tag = subArg;
+    }
+    log(`Checkout ${subArg}\n`);
+    await exec(`git checkout ${subArg}`,
+      {cwd: this.repoPath});
+    const log_rt = await exec('git log -1',
+      {cwd: this.repoPath});
+    const gitLog = parseGitLog(log_rt[0]);
+    this.commit = gitLog.commit;
+    return this.repoPath;
   }
 
   _getRepoPath() {
@@ -74,7 +124,7 @@ async function getRepo(url: string, option?: GetRepoOptions): Promise<Git> {
   }
 
   const gitlocal = new Git(url, repoName, localPath, cache);
-  gitlocal._checkoutTagBr(localPath, tagOrBranch);
+  await gitlocal._checkoutTagBr( tagOrBranch);
   return gitlocal;
 
   // return the repository' path
@@ -138,6 +188,8 @@ function findRepoInDir(repoName: string, dirPath: string): Promise<string|null> 
 export {
   getRepoName,
   getRepo,
+  parseGitLog,
+  Git,
 };
 
 export type {
