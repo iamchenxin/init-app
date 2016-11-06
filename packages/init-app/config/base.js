@@ -56,13 +56,15 @@ const test_mock = {
     testAppDir:testAppDir_mock,
     rcDir: rcDir_mock,
     rcFile: rcFile_mock,
+    testRepo: {
+      single: 'init-ts', // key is test appName, value is repoName.
+      lerna_single: 'relay-graphql',
+    },
   },
   rcfile: {
     cacheDir: path.resolve(rcDir_mock, 'cache'),
     extRepoConfs: path.resolve(rcDir_mock, 'repoconfs'),
-    singleRepo: 'init-ts',
-    multiRepo: 'relay-graphql',
-  }
+  },
 };
 
 module.exports = {

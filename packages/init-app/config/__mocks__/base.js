@@ -9,5 +9,6 @@ real_base.paths.testDir = base_mock.testDir;
 real_base.paths.testAppDir = base_mock.testAppDir;
 real_base.paths.rcDir = base_mock.rcDir;
 real_base.paths.rcFile = base_mock.rcFile;
+real_base.paths.testRepo = base_mock.testRepo;
 
 module.exports = real_base;
