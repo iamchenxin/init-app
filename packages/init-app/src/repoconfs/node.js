@@ -7,7 +7,7 @@ const copy: RepoConfig = {
   gitUrl: 'https://github.com/iamchenxin/init-app.git',
   commandName: 'lerna-conf',
   script: newPackage,
-  files: {
+  entries: {
     './packages/config-node':{
       dest:'.',
       'files': {
@@ -35,7 +35,7 @@ const update: RepoConfig = {
   gitUrl: 'https://github.com/iamchenxin/init-app.git',
   commandName: 'lerna-conf',
   script: updatePackage,
-  files: {
+  entries: {
     './packages/config-node':{
       dest:'.',
       'files': {

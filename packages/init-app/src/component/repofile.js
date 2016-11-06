@@ -34,7 +34,7 @@ export type RepoConfig = {
   gitUrl: string,
   commandName: string,
   script?: (appTool: AppTool) => void,
-  files: RcFiles,
+  entries: RcFiles,
 };
 
 type AppInfo = {
@@ -321,7 +321,7 @@ confName: string, cache: string): Promise<void> {
     stat: 'dir',
     destABS: destABS,
     srcABS: gitlocal.repoPath,
-    files: opts.files,
+    files: opts.entries, // treat entries just as a files props.
   };
 
   mkdirR(destABS);
@@ -332,7 +332,7 @@ confName: string, cache: string): Promise<void> {
     if (topSubFile.stat === 'dir') { // top level must be dir
       rCopy._copyDir(topSubFile);
     } else {
-      throw new Error('top level must be a dir. Top level maybe like:'+
+      throw new Error('top level must be a dir. Top level maybe like:' +
       `\n'files':{\n  '.':{\n    'files':{...realfiles}\n  }\n}`);
     }
   }
