@@ -18,14 +18,14 @@ describe('Test tools.js', () => {
 
     it('will wrap (errMsg: string) to an Error instance', () => {
       expect( () => {
-        mustbe(false, 2, 'should fail');
-      }).toThrowError(Error, 'should fail');
+        mustbe(false, 2, 'should failed');
+      }).toThrowError(new Error('should failed'));
     });
 
     it('will throw the passed in Error instance', () => {
       expect( () => {
         mustbe(false, 2, new RepoFileError('custom failed'));
-      }).toThrowError(RepoFileError, 'custom failed' );
+      }).toThrowError( new RepoFileError('custom failed') );
     });
   });
 
@@ -40,13 +40,13 @@ describe('Test tools.js', () => {
     it('will wrap (errMsg: string) to an Error instance', () => {
       expect( () => {
         mustNot(2, 2, 'should fail');
-      }).toThrowError(Error, 'should fail');
+      }).toThrowError(new Error('should fail'));
     });
 
     it('will throw the passed in Error instance', () => {
       expect( () => {
         mustNot(2, 2, new RepoFileError('custom failed'));
-      }).toThrowError(RepoFileError, 'custom failed' );
+      }).toThrowError(new RepoFileError('custom failed') );
     });
   });
 });
