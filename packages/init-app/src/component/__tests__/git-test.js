@@ -44,7 +44,8 @@ describe('Git', () => {
   //   }).then( rt => console.log(rt) );
   // });
   xit('bbb', () => {
-    return getRepo('https://github.com/iamchenxin/ww.git', {tag: 'v0.0.1'})
+    return getRepo('https://github.com/iamchenxin/ww.git',
+    rcFile.cacheDir, {tag: 'v0.0.1'})
     .then( gitlocal => {
       return gitlocal._getHistoryFile('5161ba2e3', 'README.md');
     }).then( rt => console.log(rt) );

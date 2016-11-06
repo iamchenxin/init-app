@@ -132,6 +132,7 @@ function _copyFile(destABS, srcABS) {
     fs.readFileSync(srcABS));
 }
 
+//  make dir recursivly
 function mkdirR(dstABS: string): boolean {
   if (fs.existsSync(dstABS)) {
     if ( fs.statSync(dstABS).isDirectory()) {

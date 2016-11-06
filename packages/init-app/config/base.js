@@ -47,11 +47,13 @@ const testDir_mock = path.resolve(paths.appRoot, 'tpjest');
 function toTestDir(relativePath) {
   return path.resolve(testDir_mock, relativePath);
 }
+const testAppDir_mock = toTestDir('./app');
 const rcDir_mock = toTestDir('./.init-app');
 const rcFile_mock = toTestDir('./.init-app/iapprc.js');
 const test_mock = {
   base:{
     testDir: testDir_mock,
+    testAppDir:testAppDir_mock,
     rcDir: rcDir_mock,
     rcFile: rcFile_mock,
   },

@@ -26,7 +26,8 @@
     "build": "gulp build",
     "bnode": "NODE_ENV=dev babel-node",
     "ts": "babel-node -- src/ts/ts.js",
-    "postinstall": "node lib/scripts/postinstall.js"
+    "postinstall": "node lib/scripts/postinstall.js",
+    "testinit": "NODE_ENV=dev babel-node src/scripts/pretest.js"
   },
   "jest": {
     "verbose": true

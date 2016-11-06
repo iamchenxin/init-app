@@ -1,7 +1,7 @@
 /* @flow
 **/
 import type { RepoFile } from './repofile.js';
-const rcFile = require('./rcfile.js');
+import type { RcFile } from './rcfile.js';
 const fs = require('fs');
 const path = require('path');
 import { warn, mustNot } from '../utils/tools.js';
@@ -28,7 +28,7 @@ function _getConfsMap(absPath: string): Map<string, string> {
 
 let _confs: Map<string, string>|null = null;
 
-function getConfs() {
+function getConfs(rcFile: RcFile) {
   if ( _confs == null ) {
     const extConfs = _getConfsMap(rcFile.extRepoConfs);
     const innerConfs = _getConfsMap(path.resolve(__dirname, '../repoconfs'));
@@ -44,15 +44,15 @@ function getConfs() {
   return _confs;
 }
 
-function getConfNames(): Array<string> {
-  const confs = getConfs();
+function getConfNames(rcFile: RcFile): Array<string> {
+  const confs = getConfs(rcFile);
   return Array.from(confs.keys());
 }
 
-function requireConf(repoName: string): RepoFile {
-  const confs = getConfs();
+function requireConf(repoName: string, rcFile: RcFile): RepoFile {
+  const confs = getConfs(rcFile);
   const confPath = confs.get(repoName);
-  mustNot(null, confPath);
+  mustNot(null, confPath, `${repoName} get: ${String(confPath)}`);
   // $FlowFixMe Flow do not allow dynamic require
   const mod:any = require(confPath);
   return mod;

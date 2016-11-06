@@ -25,3 +25,7 @@ function getDefaultRc(rcPath): RcFile {
 }
 
 module.exports = getDefaultRc(base.paths.rcFile);
+
+export type {
+  RcFile,
+};

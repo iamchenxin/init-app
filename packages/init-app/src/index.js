@@ -6,6 +6,7 @@
 const yargs = require('yargs');
 import { init, update } from './command/commands.js';
 import { getConfNames } from './component/confloader.js';
+const rcfile = require('./component/rcfile.js');
 process.on('unhandledRejection', (reason, promise) => {
 
   console.log(`Unhandled Rejection.
@@ -64,7 +65,7 @@ function commandList() {
   .option('reponame', {
     alias: 'r',
     describe: 'offical repo name',
-    choices: getConfNames(),
+    choices: getConfNames(rcfile),
 //    demand: true,
     type: 'string',
   })

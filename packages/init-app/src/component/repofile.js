@@ -314,8 +314,8 @@ class RepoCopy {
 }
 
 export async function repoCopy(destABS: string, opts: RepoConfig,
-confName: string): Promise<void> {
-  const gitlocal = await getRepo(opts.gitUrl);
+confName: string, cache: string): Promise<void> {
+  const gitlocal = await getRepo(opts.gitUrl, cache);
   const rCopy = new RepoCopy(destABS, gitlocal.repoPath);
   const topLevelDir: ResolvedDirFile = {
     stat: 'dir',
@@ -323,13 +323,17 @@ confName: string): Promise<void> {
     srcABS: gitlocal.repoPath,
     files: opts.files,
   };
+
   mkdirR(destABS);
   for (var fileName in topLevelDir.files) {
+    // ToDo: Exact strict to Type.props
     const topSubFile = rCopy._resolveSubFile(topLevelDir, fileName);
+    console.log(topSubFile);
     if (topSubFile.stat === 'dir') { // top level must be dir
       rCopy._copyDir(topSubFile);
     } else {
-      throw new Error('top level must be a dir');
+      throw new Error('top level must be a dir. Top level maybe like:'+
+      `\n'files':{\n  '.':{\n    'files':{...realfiles}\n  }\n}`);
     }
   }
   const userScript = opts.script; // for flow

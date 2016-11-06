@@ -4,6 +4,7 @@
 //import { Git } from '../component/git.js';
 import { repoCopy } from '../component/repofile.js';
 import { requireConf } from '../component/confloader.js';
+const rcfile = require('../component/rcfile.js');
 import { absolutePath, mustbe, mustNot } from '../utils/tools.js';
 import { spawn } from '../utils/child-process.js';
 import { pro } from 'flow-dynamic';
@@ -21,7 +22,7 @@ type InitConfig = {
 async function _exec(_appPath: string, cpConf: RepoConfig,
 confName: string): Promise<string> {
   const destPath = absolutePath(_appPath);
-  await repoCopy(destPath, cpConf, confName);
+  await repoCopy(destPath, cpConf, confName, rcfile.cacheDir);
   return destPath;
 }
 
@@ -33,7 +34,7 @@ async function init(_appPath: string, conf: InitConfig): Promise<string> {
   mustbe(false, fs.existsSync(_appPath), new Error('the path already exist, ' +
   'please choose an other app name'));
   const repoName = pro.isString(conf.repoName, 'Command init: Must have a Repo Name');
-  const confFile = requireConf(repoName); // if
+  const confFile = requireConf(repoName, rcfile); // if
   const rt = await _exec(_appPath, confFile.copy, repoName);
   if ( conf.npminstall ) {
     _npmInstall(_appPath);
@@ -44,7 +45,7 @@ async function init(_appPath: string, conf: InitConfig): Promise<string> {
 async function update(_appPath: string, conf: InitConfig): Promise<string> {
   if ( conf.repoName == null) { throw new Error('ee'); }
   const repoName = pro.isString(conf.repoName, 'Command init: Must have a Repo Name');
-  const confFile = requireConf(repoName); // if
+  const confFile = requireConf(repoName, rcfile); // if
   const rt = await _exec(_appPath, confFile.update, repoName);
   if ( conf.npminstall ) {
     _npmInstall(_appPath);

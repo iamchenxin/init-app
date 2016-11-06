@@ -5,7 +5,6 @@ import { RepoFileError } from '../utils/error.js';
 import { log, mustbe, mustNot, format } from '../utils/tools.js';
 const fs = require('fs');
 const path = require('path');
-const rcFile = require('./rcfile.js');
 
 type GetRepoOptions = {
   tag?: string,
@@ -111,8 +110,8 @@ class Git {
 
 }
 
-async function getRepo(url: string, option?: GetRepoOptions): Promise<Git> {
-  const cache = rcFile.cacheDir;
+async function getRepo(url: string, cache: string, option?: GetRepoOptions): Promise<Git> {
+  //const cache = rcFile.cacheDir;
   const repoName = getRepoName(url);
   const tagOrBranch = ( option && option.tag ) ? option.tag : 'master';
 
