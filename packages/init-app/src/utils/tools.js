@@ -1,11 +1,11 @@
 /* @flow
  *
 **/
-const fs = require('fs');
+const fs = require('./fs').fs;
 const util = require('util');
 const base = require('../../config/base.js');
 const path = require('path');
-import {RepoFileError} from './error.js';
+
 
 function log() {
   console.log.apply(null, arguments);
@@ -108,46 +108,6 @@ function absolutePath(rPath: string): string {
   return path.resolve(rPath);
 }
 
-// ToDo: should allow copy file -> dir
-function copyR(dst: string, src: string) {
-//  console.log(`src:(${src}) =>  (${dst})`);
-  const srcStat = fs.statSync(src);
-  if ( srcStat.isFile() ) {
-    mkdirR(path.dirname(dst));
-    _copyFile(dst, src);
-  } else if (srcStat.isDirectory()) {
-
-    mkdirR(dst);
-    fs.readdirSync(src).map( subPath => {
-      copyR(path.resolve(dst, subPath), path.resolve(src, subPath));
-    });
-
-  } else {
-    throw new RepoFileError(`${dst} & ${src} should be File`);
-  }
-}
-
-function _copyFile(destABS, srcABS) {
-  return fs.writeFileSync(destABS,
-    fs.readFileSync(srcABS));
-}
-
-//  make dir recursivly
-function mkdirR(dstABS: string): boolean {
-  if (fs.existsSync(dstABS)) {
-    if ( fs.statSync(dstABS).isDirectory()) {
-      return true;
-    } else {
-      throw new RepoFileError(`"${dstABS}", should be a dir`);
-    }
-  }
-  const parent = path.dirname(dstABS);
-  mkdirR(parent);
-  fs.mkdirSync(dstABS);
-  return true;
-}
-
-
 export {
   log,
   warn,
@@ -160,8 +120,6 @@ export {
   arrayToMap,
   absolutePath,
   resolveToHome,
-  copyR,
-  mkdirR,
 };
 
 export type {

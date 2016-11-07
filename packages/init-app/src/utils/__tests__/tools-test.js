@@ -4,10 +4,19 @@ declare var describe: Function;
 declare var it: Function;
 declare var expect: Function;
 
+jest.mock('../fs.js');
+jest.mock('../../../config/base.js');
+const fs = require('../fs.js');
+const base = require('../../../config/base.js');
+const path = require('path');
 import { mustbe, mustNot, format } from '../tools.js';
 import { RepoFileError } from '../error.js';
 
+const testDir = base.test_mock.base.testDir;
+const thisTestDir = path.resolve(testDir, 'tools-test');
+
 describe('Test tools.js', () => {
+
   describe('mustbe', () => {
     it('has a default error msg', () => {
       expect( () => {
@@ -49,4 +58,5 @@ describe('Test tools.js', () => {
       }).toThrowError(new RepoFileError('custom failed') );
     });
   });
+
 });
