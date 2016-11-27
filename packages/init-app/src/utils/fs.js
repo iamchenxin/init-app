@@ -5,67 +5,11 @@ const node_fs = require('fs');
 const path = require('path');
 import {RepoFileError} from './error.js';
 
-const lfs = {
-  mkdirSync: node_fs.mkdirSync,
-  existsSync: node_fs.existsSync,
-  statSync: node_fs.statSync,
-  readdirSync: node_fs.readdirSync,
-  writeFileSync: node_fs.writeFileSync,
-  readFileSync: node_fs.readFileSync,
-  // custom
-  copyFile: copyFile,
-  mkdirR: mkdirR,
-  copyR: copyR,
-  sss:'REAL!!!',
-};
-
-function copyFile(destABS: string, srcABS: string): void {
-  return lfs.writeFileSync(destABS,
-    lfs.readFileSync(srcABS));
-}
-
-//  make dir recursivly
-function mkdirR(dstABS: string, env?: any): boolean {
-//  console.log(lfs);
-  if ( env == null ) {
-    env = lfs;
-  }
-//  console.log(env);
-  if (env.existsSync(dstABS)) {
-    if ( env.statSync(dstABS).isDirectory()) {
-      return true;
-    } else {
-      throw new RepoFileError(`"${dstABS}", should be a dir`);
-    }
-  }
-  const parent = path.dirname(dstABS);
-  mkdirR(parent, env);
-  env.mkdirSync(dstABS);
-  return true;
-}
-
-// ToDo: should allow copy file -> dir
-function copyR(dst: string, src: string) {
-//  console.log(`src:(${src}) =>  (${dst})`);
-  const srcStat = lfs.statSync(src);
-  if ( srcStat.isFile() ) {
-    lfs.mkdirR(path.dirname(dst));
-    lfs.copyFile(dst, src);
-  } else if (srcStat.isDirectory()) {
-
-    lfs.mkdirR(dst);
-    lfs.readdirSync(src).map( subPath => {
-      lfs.copyR(path.resolve(dst, subPath), path.resolve(src, subPath));
-    });
-
-  } else {
-    throw new RepoFileError(`${dst} & ${src} should be File`);
-  }
-}
 // $PropertyType<T, 'x'>
 // type StatSync = $Type<node_fs.statSync>;
 
 class FS {
+  _ori_fs: typeof node_fs;
   mkdirSync: (path: string, mode?: number) => void;
   existsSync: (path: string) => boolean;
   statSync: typeof node_fs.statSync;
@@ -73,13 +17,17 @@ class FS {
   writeFileSync: ( filename: string, data: Buffer | string,
     options?: Object | string ) => void;
   readFileSync: typeof node_fs.readFileSync;
-  constructor() {
-    this.mkdirSync = node_fs.mkdirSync;
-    this.existsSync = node_fs.existsSync;
-    this.statSync = node_fs.statSync;
-    this.readdirSync = node_fs.readdirSync;
-    this.writeFileSync = node_fs.writeFileSync;
-    this.readFileSync = node_fs.readFileSync;
+  constructor(ori_fs: typeof node_fs) {
+    if ( ori_fs == null) {
+      throw new Error('invalid fs');
+    }
+    this._ori_fs = ori_fs;
+    this.mkdirSync = ori_fs.mkdirSync;
+    this.existsSync = ori_fs.existsSync;
+    this.statSync = ori_fs.statSync;
+    this.readdirSync = ori_fs.readdirSync;
+    this.writeFileSync = ori_fs.writeFileSync;
+    this.readFileSync = ori_fs.readFileSync;
   }
 
   copyFile(destABS: string, srcABS: string): void {
@@ -89,8 +37,6 @@ class FS {
 
   //  make dir recursivly
   mkdirR(dstABS: string): boolean {
-  //  console.log(lfs);
-  //  console.log(env);
     if (this.existsSync(dstABS)) {
       if ( this.statSync(dstABS).isDirectory()) {
         return true;
@@ -99,14 +45,13 @@ class FS {
       }
     }
     const parent = path.dirname(dstABS);
-    mkdirR(parent);
+    this.mkdirR(parent);
     this.mkdirSync(dstABS);
     return true;
   }
 
   // ToDo: should allow copy file -> dir
   copyR(dst: string, src: string) {
-  //  console.log(`src:(${src}) =>  (${dst})`);
     const srcStat = this.statSync(src);
     if ( srcStat.isFile() ) {
       this.mkdirR(path.dirname(dst));
@@ -125,16 +70,98 @@ class FS {
 
 }
 
-const fs = new FS();
+const fs = new FS(node_fs);
 
-const fsRecorder = {
-  cmdList: {},
-  argsTocmd: {},
-  clean: () => {},
+// for mocks
+type CmdList = Array< {
+  cmd: string,
+  args: string[],
+  result: mixed,
+}>;
+
+type FlattedCmd = {
+  [cmd: string] : Array<{
+    result: mixed,
+    order: number, // the called indexes.
+  }>, // value is calls
 };
+type ArgsToCmd = Map<string, FlattedCmd>; // key is flatted Args.
+
+class FsRecorder {
+  cmdList: CmdList|null;
+  argsTocmd: ArgsToCmd|null;
+  constructor() {
+    this.cmdList = null;
+    this.argsTocmd = null;
+  }
+
+  clean() {
+    this.cmdList = null;
+    this.argsTocmd = null;
+  }
+
+  pushCommand(cmd: string, args: string[], result: mixed ) { // cause ...args can not be typed
+    if ( null == this.cmdList ) {
+      this.cmdList = [];
+    }
+    const cmdlist = this.cmdList; // const to declare will not modify this value.
+    cmdlist.push({
+      cmd, args, result,
+    });
+    const cmdOrder = cmdlist.length;
+
+    if ( null == this.argsTocmd ) {
+      this.argsTocmd = new Map();
+    }
+    const argsTocmd = this.argsTocmd;
+    const flattedArgs = args.join(',');
+    const oldFcmd = argsTocmd.get(flattedArgs);
+    if ( oldFcmd ) {
+      const calls = oldFcmd[cmd];
+      if ( calls ) {
+        calls.push({
+          order: cmdOrder,
+          result: result,
+        });
+      } else {
+        oldFcmd[cmd] = [{
+          order: cmdOrder,
+          result: result,
+        }];
+      }
+    } else {
+      argsTocmd.set(flattedArgs, {
+        [cmd]: [{
+          order: cmdOrder,
+          result: result,
+        }],
+      });
+    }
+
+    return cmdlist.length;
+  }
+
+  getArgsMap() {
+    return this.argsTocmd;
+  }
+
+  mock<FN: Function>(fn: FN, fnName: string): FN {
+    const rFn: any = (...args) => {
+      const result = (fn: any).apply(this, args);
+      this.pushCommand(fnName, args, result);
+      return result;
+    };
+    // $FlowFixMe: do not allow this ?
+    Object.defineProperty(rFn, 'name', { writable: true });
+    rFn.name = fnName;
+    return rFn;
+  }
+}
+
+const fsRecorder = new FsRecorder();
 
 module.exports = {
   fs: fs,
   FS: FS,
-  fsRecorder,
+  _fsRecorder: fsRecorder,
 };

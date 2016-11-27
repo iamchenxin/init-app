@@ -56,7 +56,7 @@ describe('Git', () => {
     const repoPath = path.resolve(cache, repoName);
     const url = 'https://github.com/iamchenxin/ww.git';
     const git: Git = new Git(url, repoName, repoPath, cache);
-    it('after checkout, git.commit should be available', () => {
+    xit('after checkout, git.commit should be available', () => {
       return git._checkoutTagBr('master').then( rt => {
         // $FlowFixMe: let jest check
         expect(git.commit.length).toBeGreaterThan(0);

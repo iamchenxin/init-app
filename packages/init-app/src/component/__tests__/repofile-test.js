@@ -14,7 +14,10 @@ const path = require('path');
 // import { RepoFileError } from '../../utils/error.js';
 
 describe('repofile.js', () => {
-  it('empty', () => {
-
+  describe('Class RepoCopy', () => {
+    it('_copyDir', () => {
+      
+    });
   });
+
 });

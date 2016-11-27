@@ -4,7 +4,7 @@ import { requireConf } from '../component/confloader.js';
 // import { Git } from '../component/git.js';
 import { repoCopy } from '../component/repofile.js';
 import { test_mock } from '../../config/base.js';
-import { mkdirR } from '../utils/tools.js';
+const { mkdirR } = require('../utils/fs.js').fs;
 const path = require('path');
 
 async function prepareTest() {

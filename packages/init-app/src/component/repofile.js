@@ -6,7 +6,8 @@ const path = require('path');
 const fs = require('fs');
 const semver = require('semver');
 //import {RepoFileError} from '../utils/error.js';
-import { copyR, mkdirR, arrayToMap, mustNot } from '../utils/tools.js';
+import { arrayToMap, mustNot } from '../utils/tools.js';
+const { copyR, mkdirR } = require('../utils/fs.js').fs;
 import { getRepo } from './git.js';
 import type { GitLocal } from './git.js';
 import { pro } from 'flow-dynamic';
@@ -201,7 +202,7 @@ function _mergeDep(deps: Array<Dep>, excludePkgs?: Array<string>): Dep {
   return newDep;
 }
 
-export type RcObjectFile = {
+export type RcObject = {
   stat?: 'dir'|'file', // default is 'dir'
   dest?: string, // dest path, default is the name of this package
   relativeDir?: 'approot'|'parent', // default is parent
@@ -214,9 +215,9 @@ type RcSimpleFile =
   1|2|4|  // 1 ,2 ,4 = COPY, MKDIR , CHECK
   string; // rename this file.
 
-type RcFile = RcObjectFile|RcSimpleFile;
+type RcFile = RcObject|RcSimpleFile;
 type RcFiles = {
-  [key: string]: RcObjectFile|RcSimpleFile,
+  [key: string]: RcFile,
 };
 
 // below is inner type, a resolved type from Init*File.
@@ -244,6 +245,8 @@ class RepoCopy {
     this.srcRoot = srcPath;
   }
 
+// resolve a given field by name.
+// will resolve a `(dir.files[subFileName]): RcFile` to a `ResolvedFile`
   _resolveSubFile(dirFile: ResolvedDirFile, subFileName: string): ResolvedFile {
     let stat: 'file'|'copy'|'mkdir' = 'file';
     let relativeDestDir = 'parent';
@@ -302,7 +305,7 @@ class RepoCopy {
           break;
         case 'dir':
           // should cast to tail call !
-          this._copyDir(subFile.files);
+          this._copyDir(subFile);
           break;
         default:
           throw new Error(`file.stat should not be ${subFile.stat}`);

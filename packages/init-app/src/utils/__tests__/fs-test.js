@@ -7,7 +7,8 @@ declare var beforeAll: Function;
 
 jest.mock('../fs.js');
 jest.mock('../../../config/base.js');
-const { fs, fs_real, fsRecorder } = require('../fs.js');
+const { fs, FS, _fsRecorder } = require('../fs.js');
+const unmockfs = require.requireActual('../fs.js');
 const base = require('../../../config/base.js');
 const path = require('path');
 import { format } from '../tools.js';
@@ -24,10 +25,11 @@ describe('Test tools.js', () => {
   describe('mkdirR', () => {
 
     it('hahah', () => {
-  //    console.log(fs);
-  //    console.log(fs_real);
-      fs.mkdirR('/home/iamchenxin/tmp/mkdt/hah', fs);
-      console.log(format(fsRecorder.cmdList));
+//      fs.mkdirR = unmockfs.fs.mkdirR;
+
+      fs.mkdirR('/home/iamchenxin/tmp/mkdt/hah');
+      console.log(format(_fsRecorder.cmdList));
+      console.log(format(_fsRecorder.argsTocmd));
     });
   });
 });
