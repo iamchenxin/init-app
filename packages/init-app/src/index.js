@@ -80,7 +80,7 @@ function commandList() {
   .option('npminstall', {
     alias: 'n',
     describe: 'install all deps in package.json',
-    default: true,
+    default: false,
     type: 'boolean',
   })
   .global('npminstall')
