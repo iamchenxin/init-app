@@ -77,6 +77,7 @@ function newPackage(appTool: AppTool) {
       scripts: pJson.scripts ? pJson.scripts : {},
       dependencies: newDep,
       devDependencies: newDevDep,
+      iappinfo: appTool.buildAppInfo(),
     };
 
     appTool.writeToDest('package.json', JSON.stringify(newPkg, null, 2));
