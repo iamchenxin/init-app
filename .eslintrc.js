@@ -43,6 +43,10 @@ module.exports = {
         WARNING,
         "^([A-Z][a-z0-9]+)+"
     ],
+//    "flowtype/object-type-delimiter": [
+//      2,
+//      "comma"
+//    ]
   },
   "settings": {
     "flowtype": {

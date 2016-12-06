@@ -4,11 +4,12 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run jest",
+    "lint": "node_modules/.bin/eslint .",
+    "jest": "NODE_ENV=test jest $@",
     "build": "gulp build",
     "start": "node ./lib/index.js",
     "dev": "npm run start",
-    "schema": "node ./lib/updateSchema.js",
     "bnode": "NODE_ENV=dev babel-node"
   },
   "homepage": "https://github.com/iamchenxin/init-app",
@@ -25,12 +26,15 @@
   },
   "devDependencies": {
     "init-scripts": "^0.0.2",
-    "init-preset-node": "^6.8.2",
-    "babel-core": "^6.18.0",
+    "init-preset-node": "^6.8.5",
+    "flow-bin": "^0.36.0",
     "babel-cli": "^6.18.0",
+    "babel-core": "^6.18.2",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-babel": "^6.1.2",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.6.0"
+    "gulp-sourcemaps": "^1.9.1",
+    "flow-bin": "^0.36.0",
+    "jest": "^17.0.3"
   }
 }

@@ -2,7 +2,7 @@
 .*/fbjs/.*
 .*/tpjest/.*
 [include]
-<<PROJECT_ROOT>>/../init-scripts
+
 [libs]
 
 [options]
@@ -13,4 +13,3 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe\\($\\|[^(]\\|(\\(>=0\\.\\(2[0-4]\\|1[
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(>=0\\.\\(2[0-4]\\|1[0-9]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*\\)?)\\)? #[0-9]+
 
 [version]
-0.34.0
