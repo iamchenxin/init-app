@@ -28,8 +28,6 @@
     "init-scripts": "^0.0.2",
     "init-preset-node": "^6.8.5",
     "flow-bin": "^0.36.0",
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.18.2",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-babel": "^6.1.2",
     "gulp-rename": "^1.2.2",
