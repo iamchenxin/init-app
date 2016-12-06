@@ -28,6 +28,7 @@ class FS {
     this.readdirSync = ori_fs.readdirSync;
     this.writeFileSync = ori_fs.writeFileSync;
     this.readFileSync = ori_fs.readFileSync;
+
   }
 
   copyFile(destABS: string, srcABS: string): void {
@@ -37,6 +38,7 @@ class FS {
 
   //  make dir recursivly
   mkdirR(dstABS: string): boolean {
+
     if (this.existsSync(dstABS)) {
       if ( this.statSync(dstABS).isDirectory()) {
         return true;

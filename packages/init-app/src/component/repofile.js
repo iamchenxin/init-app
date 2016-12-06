@@ -3,11 +3,11 @@
 **/
 
 const path = require('path');
-const fs = require('fs');
+
 const semver = require('semver');
 //import {RepoFileError} from '../utils/error.js';
 import { arrayToMap, mustNot } from '../utils/tools.js';
-const { copyR, mkdirR } = require('../utils/fs.js').fs;
+const { fs } = require('../utils/fs.js');
 import { getRepo } from './git.js';
 import type { GitLocal } from './git.js';
 import { pro } from 'flow-dynamic';
@@ -124,7 +124,6 @@ class AppTool {
     const deps = pJsons.map(pj => pj.devDependencies);
     return _mergeDep(deps, excludePkgs);
   }
-
 
 
   // -------------- compelex functions
@@ -298,10 +297,10 @@ class RepoCopy {
       switch (subFile.stat) {
         case 'file':
         case 'copy':
-          copyR( subFile.destABS, subFile.srcABS);
+          fs.copyR( subFile.destABS, subFile.srcABS);
           break;
         case 'mkdir':
-          mkdirR( subFile.destABS);
+          fs.mkdirR( subFile.destABS);
           break;
         case 'dir':
           // should cast to tail call !
@@ -327,7 +326,7 @@ confName: string, cache: string): Promise<void> {
     files: opts.entries, // treat entries just as a files props.
   };
 
-  mkdirR(destABS);
+  fs.mkdirR(destABS);
   for (var fileName in topLevelDir.files) {
     // ToDo: Exact strict to Type.props
     const topSubFile = rCopy._resolveSubFile(topLevelDir, fileName);
