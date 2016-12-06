@@ -3,8 +3,10 @@ import type { RepoConfig, AppTool  } from '../component/repofile.js';
 const COPY = 1;
 //const MKDIR = 2;
 
+const gitUrl = 'https://github.com/iamchenxin/init-prj-lerna.git';
+
 const copy: RepoConfig = {
-  gitUrl: 'https://github.com/iamchenxin/init-app.git',
+  gitUrl: gitUrl,
   commandName: 'lerna-conf',
   script: newPackage,
   entries: {
@@ -32,7 +34,7 @@ const copy: RepoConfig = {
 };
 
 const update: RepoConfig = {
-  gitUrl: 'https://github.com/iamchenxin/init-app.git',
+  gitUrl: gitUrl,
   commandName: 'lerna-conf',
   script: updatePackage,
   entries: {
