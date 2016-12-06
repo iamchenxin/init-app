@@ -180,25 +180,45 @@ class AppTool {
   }
 }
 
+export function clean_ver(ver: string): string {
+  const rt = ver.match(/[^0-9]*?([0-9a-zA-Z][\w\.\-_#@\/:]*)/);
+  if (rt) {
+    return rt[1];
+  }
+  throw new Error(`clean_ver: ${ver}`);
+}
 type Dep = {  [key: string]: string, };
 // merge dependencies & devDependencies
 function _mergeDep(deps: Array<Dep>, excludePkgs?: Array<string>): Dep {
   const exclude = arrayToMap(excludePkgs);
-  const newDep = {};
+  const rtDep = {};
   for (const dep of deps) {
     for (var key in dep) {
       if (exclude.get(key) != true) {
-        if (newDep.hasOwnProperty(key) == false) {
-          newDep[key] = dep[key];
+        if (rtDep.hasOwnProperty(key) == false) {
+          rtDep[key] = dep[key];
         } else {
-          if ( semver.gt(dep[key], newDep[key]) ) {
-            newDep[key] = dep[key];
+          //semver.
+          const new_ver = clean_ver(dep[key]);
+          const rt_ver = clean_ver(rtDep[key]);
+          try {
+            if ( semver.gt(new_ver, rt_ver) ) {
+              console.log(`${key}:${rtDep[key]} -> ${dep[key]}`);
+              rtDep[key] = dep[key];
+            } else {
+              if (semver.lt(new_ver, rt_ver)) {
+                console.log(`${key}:${dep[key]} -> ${rtDep[key]}`);
+              }
+            }
+          } catch (e) {
+            rtDep[key] = dep[key];
           }
         }
       }
     }
   }
-  return newDep;
+
+  return rtDep;
 }
 
 export type RcObject = {
@@ -319,6 +339,7 @@ export async function repoCopy(destABS: string, opts: RepoConfig,
 confName: string, cache: string): Promise<void> {
   const gitlocal = await getRepo(opts.gitUrl, cache);
   const rCopy = new RepoCopy(destABS, gitlocal.repoPath);
+  console.log('\nbegin copy ...');
   const topLevelDir: ResolvedDirFile = {
     stat: 'dir',
     destABS: destABS,
@@ -330,12 +351,12 @@ confName: string, cache: string): Promise<void> {
   for (var fileName in topLevelDir.files) {
     // ToDo: Exact strict to Type.props
     const topSubFile = rCopy._resolveSubFile(topLevelDir, fileName);
-    console.log(topSubFile);
+  //  console.log(topSubFile);
     if (topSubFile.stat === 'dir') { // top level must be dir
       rCopy._copyDir(topSubFile);
     } else {
       throw new Error('top level must be a dir. Top level maybe like:' +
-      `\n'files':{\n  '.':{\n    'files':{...realfiles}\n  }\n}`);
+      "\n'files':{\n  '.':{\n    'files':{...realfiles}\n  }\n}");
     }
   }
   const userScript = opts.script; // for flow
@@ -346,6 +367,10 @@ confName: string, cache: string): Promise<void> {
   }
   return;
 }
+
+export {
+  _mergeDep,
+};
 
 export type {
   AppTool,

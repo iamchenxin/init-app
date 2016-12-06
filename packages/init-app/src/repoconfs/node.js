@@ -88,7 +88,7 @@ function newPackage(appTool: AppTool) {
 }
 
 function updatePackage(appTool: AppTool) {
-  const srcJson = appTool.jsonSrc('./packages/cconfig-node/package.json');
+  const srcJson = appTool.jsonSrc('./packages/config-node/package.json');
   const srcJson_ad = appTool.jsonSrc('./package.json');
 
   const appJson = appTool.jsonDest('./package.json');

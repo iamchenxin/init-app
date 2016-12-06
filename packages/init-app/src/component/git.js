@@ -129,7 +129,7 @@ async function getRepo(url: string, cache: string, option?: GetRepoOptions): Pro
   // return the repository' path
   function _clone(): Promise<string> {
     return spawn('git', ['clone', url,
-    path.resolve(cache, repoName)])
+      path.resolve(cache, repoName)])
     .then( _ => {
       return findRepoInDir(repoName, cache)
       .then( repoPath => {
@@ -137,7 +137,7 @@ async function getRepo(url: string, cache: string, option?: GetRepoOptions): Pro
           return repoPath;
         }
         throw new RepoFileError(
-          `After clone\n` +
+          'After clone\n' +
           `url: ${url}\n` +
           `cache: ${cache}\n` +
           `repo: ${repoName}\n` +

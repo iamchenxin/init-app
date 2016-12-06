@@ -27,7 +27,7 @@ describe('Test tools.js', () => {
     it('hahah', () => {
 //      fs.mkdirR = unmockfs.fs.mkdirR;
 
-      fs.mkdirR('/home/iamchenxin/tmp/mkdt/hah');
+  //    fs.mkdirR('/home/iamchenxin/tmp/mkdt/hah');
       console.log(format(_fsRecorder.cmdList));
       console.log(format(_fsRecorder.argsTocmd));
     });

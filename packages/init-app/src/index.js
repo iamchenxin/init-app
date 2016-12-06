@@ -45,10 +45,10 @@ function commandList() {
       .demand(1);
     },
     handler: function(argv) {
-      console.log('update app config ...');
+      console.log('update app config ......');
       update(argv.appPath, getArgs(argv))
       .then( result => {
-        console.dir(result);
+    //    console.dir(result);
       });
     },
   };
